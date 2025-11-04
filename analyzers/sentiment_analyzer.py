@@ -1,41 +1,85 @@
 """
-ANALIZADOR DE SENTIMIENTO - VERSIÓN FINAL COMPLETA
+ANALIZADOR DE DETECCIÓN DE VIOLENCIA - VERSIÓN 1.5
 Para EvaBot - Por Frida
+Detección de violencia digital, psicológica y patrones modernos de abuso
 """
 
 class SentimentAnalyzer:
     def __init__(self):
-        """Inicializa con todas las categorías de violencia de género"""
+        """Inicializa con categorías actualizadas de violencia digital y psicológica"""
         self.patterns = {
             "control": [
                 "no salgas con", "no hables con", "dónde estás", 
                 "con quién estás", "revisa tu celular", "celos",
-                "controla", "vigila", "no te vistas así", "exige saber"
+                "controla", "vigila", "no te vistas así", "exige saber",
+                # NUEVO EN v1.5: Patrones digitales
+                "me muestras tus chats", "por qué no me contestas",
+                "bloquea a", "elimina a", "qué haces en redes",
+                "por qué subiste esa foto", "quién te dio like",
+                "me pasas tu contraseña", "dónde has estado"
             ],
             "humillacion": [
                 "eres una", "no sirves", "estás loca", "nadie te quiere",
-                "gorda", "fea", "inútil", "dramática", "exagerada", "estúpida"
+                "gorda", "fea", "inútil", "dramática", "exagerada", "estúpida",
+                # NUEVO EN v1.5: Humillaciones modernas
+                "todas tus amigas son", "no sabes hacer nada",
+                "estás mal de la cabeza", "eres una exagerada",
+                "te lo buscas", "así te tratan por",
+                "con ese cuerpo", "y encima te quejas"
             ],
             "amenazas": [
                 "te voy a", "si no haces", "vas a ver", 
                 "te arrepentirás", "suicid", "matar", "dañar",
-                "golpear", "lastimar", "acabar contigo"
+                "golpear", "lastimar", "acabar contigo",
+                # NUEVO EN v1.5: Amenazas digitales
+                "subo tus fotos", "te expongo en redes",
+                "le digo a todos que", "voy a publicar eso",
+                "te voy a hacer quedar mal", "nadie te va a creer",
+                "pago para que", "contrato a alguien para"
             ],
             "aislamiento": [
                 "no veas a tu familia", "tus amigas son", 
-                "no confíes en", "solo te tengo a mí", "no salgas sin mí"
+                "no confíes en", "solo te tengo a mí", "no salgas sin mí",
+                # NUEVO EN v1.5: Aislamiento moderno
+                "tus amigos son unos", "tu familia te manipula",
+                "deja de hablar con", "no vayas a esa reunión",
+                "no te juntes con", "esos no son tus amigos",
+                "te están usando", "solo yo te entiendo"
             ],
             "violencia_economica": [
                 "no te doy dinero", "me das tu sueldo", 
-                "no trabajes", "dependes de mí", "controlo el dinero"
+                "no trabajes", "dependes de mí", "controlo el dinero",
+                # NUEVO EN v1.5: Control económico moderno
+                "gastas mucho en", "no necesitas trabajar",
+                "yo te mantengo", "para qué quieres dinero",
+                "te pago solo si", "esa compra no la necesitas",
+                "devuélvelo", "no sabes administrar"
+            ],
+            # NUEVA CATEGORÍA EN v1.5: VIOLENCIA DIGITAL
+            "violencia_digital": [
+                "pásame tus contraseñas", "quiero acceso a tu cuenta",
+                "por qué me bloqueaste", "acepta mi solicitud en redes",
+                "etiquétame en todo", "dónde estás en tiempo real",
+                "enciende tu ubicación", "respóndeme ahora mismo",
+                "por qué no estás en línea", "sube una foto conmigo",
+                "quita esa publicación", "qué comentarios te ponen"
+            ],
+            # NUEVA CATEGORÍA EN v1.5: MANIPULACIÓN EMOCIONAL
+            "manipulacion_emocional": [
+                "si me quisieras", "una novia de verdad haría",
+                "es por tu bien", "te lo digo porque te amo",
+                "sin mí no eres nada", "nadie te va a aguantar como yo",
+                "después de todo lo que hice por ti", "eres mi única razón para vivir",
+                "si te vas me muero", "me haces esto después de todo",
+                "estás loco si piensas eso", "exageras todo"
             ]
         }
         
-        # Sistema de palabras clave para determinar gravedad
+        # Sistema MEJORADO en v1.5
         self.severity_keywords = {
-            "leve": ["celos", "molesto", "enojado"],
-            "moderado": ["amenaza", "humillación", "control", "obligar"],
-            "alto": ["matar", "suicidio", "golpear", "dañar", "lastimar"]
+            "leve": ["celos", "molesto", "enojado", "disgustado"],
+            "moderado": ["amenaza", "humillación", "control", "obligar", "manipular"],
+            "alto": ["matar", "suicidio", "golpear", "dañar", "lastimar", "exponer", "publicar"]
         }
     
     def analyze_text(self, text):
@@ -78,33 +122,41 @@ class SentimentAnalyzer:
         return detected
     
     def _calculate_severity(self, text, patterns):
-        """Calcula nivel de severidad basado en patrones detectados"""
+        """NUEVO EN v1.5: Calcula nivel de severidad con criterios más precisos"""
         if not patterns:
             return "ninguno"
         
-        # Si detectamos amenazas, es ALTO RIESGO
-        if "amenazas" in patterns:
+        # ALTO RIESGO: Amenazas directas, violencia digital grave o múltiples categorías graves
+        if ("amenazas" in patterns or 
+            "violencia_digital" in patterns and len(patterns) >= 2 or
+            any(word in text for word in self.severity_keywords["alto"])):
             return "alto"
         
-        # Si detectamos palabras de alto riesgo
-        for severe_word in self.severity_keywords["alto"]:
-            if severe_word in text:
-                return "alto"
+        # MODERADO RIESGO: Comportamientos de control serios, manipulación o 2+ categorías
+        control_serio = [
+            "revisa tu celular", "controla", "vigila", "no te vistas así", 
+            "exige saber", "pásame tus contraseñas", "me muestras tus chats",
+            "bloquea a", "elimina a", "enciende tu ubicación"
+        ]
         
-        # Si hay múltiples tipos de violencia, es MODERADO
-        if len(patterns) >= 2:
+        if (any(patron_serio in text for patron_serio in control_serio) or
+            "manipulacion_emocional" in patterns or
+            len(patterns) >= 2):
             return "moderado"
         
-        # Un solo tipo de violencia es LEVE
+        # LEVE: Un solo patrón menos grave
         return "leve"
     
     def _generate_response(self, severity):
-        """Genera respuesta automática según el nivel de riesgo"""
+        """NUEVO EN v1.5: Genera respuestas más específicas y útiles"""
         responses = {
-            "ninguno": "No detecté indicios claros de violencia. Estoy aquí para escucharte 💜",
-            "leve": "He detectado algunos patrones de control. ¿Quieres contarme más sobre esta situación?",
-            "moderado": "⚠️ He detectado comportamientos preocupantes. Esto podría ser violencia psicológica. ¿Estás a salvo?",
-            "alto": "🆘 ¡ALTO RIESGO DETECTADO! 🆘 Por favor, contacta a: Línea 144 (violencia de género) o 911 (emergencias). Tu seguridad es lo más importante."
+            "ninguno": "No detecté indicios claros de violencia. Recuerda que estoy aquí para escucharte cuando lo necesites 💜",
+            
+            "leve": "He detectado algunos comportamientos que podrían ser señal de alerta. ¿Quieres contarme más sobre esta situación? Podemos identificar juntas si hay patrones preocupantes.",
+            
+            "moderado": "⚠️ He detectado varios patrones de comportamiento que son señales de violencia psicológica. Esto incluye control, manipulación o aislamiento. ¿Estás en un lugar seguro? ¿Necesitas ayuda para planificar tu seguridad?",
+            
+            "alto": "🆘 ¡RIESGO ALTO DETECTADO! 🆘 \n\nPor favor, considera contactar:\n• Línea 144 - Violencia de género (24/7)\n• 911 - Emergencias\n• Línea de la Esperanza - Prevención suicidio\n\nTu seguridad es lo más importante. Si estás en peligro inmediato, busca un lugar seguro."
         }
         
         return responses.get(severity, responses["ninguno"])
@@ -126,17 +178,20 @@ def analyze_sentiment(text):
     return analyzer.analyze_text(text)
 
 
-# Pruebas completas del sistema
+# Pruebas completas del sistema v1.5
 if __name__ == "__main__":
-    print("🔍 PROBANDO VERSIÓN FINAL DEL ANALIZADOR")
-    print("=" * 50)
+    print("🔍 PROBANDO VERSIÓN 1.5 - VIOLENCIA DIGITAL Y PATRONES MODERNOS")
+    print("=" * 60)
     
     test_messages = [
         "Mi novio revisa mi celular y no me deja ver a mis amigas",
-        "Hoy tuve un día maravilloso!",
-        "Me dijo que si lo dejaba se iba a suicidar",
-        "Siempre me dice que no sirvo para nada y que soy una inútil",
-        "Controla todo mi dinero y no me deja trabajar"
+        "Me exige que le pase mis contraseñas de redes sociales",
+        "Dice que si lo dejo sube mis fotos íntimas a internet",
+        "Siempre me dice que sin él no soy nada y que nadie me va a querer",
+        "Me controla el dinero y no me deja trabajar",
+        "Hoy tuve un día maravilloso con mis amigos!",
+        "Si no le muestro mis chats se enoja y me hace sentir culpable",
+        "Dice que estoy loca por sentirme incómoda con sus celos"
     ]
     
     for message in test_messages:
@@ -146,3 +201,4 @@ if __name__ == "__main__":
         print(f"   📊 Patrones: {result['patrones_detectados']}")
         print(f"   💬 Respuesta: {result['respuesta_recomendada']}")
         print("   " + "-" * 40)
+        
