@@ -17,12 +17,14 @@ class SentimentAnalyzer:
                 "prohíbe", "permiso", "avisarme"
             ],
             "humillacion": [
+                "te odio", "odio",  # 👈 AGREGADOS
                 "eres un", "eres una", "no sirves", "estás loc", 
                 "nadie te quiere", "gord", "fe", "inútil", "dramátic",
                 "exagerad", "estúpid", "no sabes", "mal de la cabeza",
                 "no vales", "incapaz", "incompetente"
             ],
             "amenazas": [
+                "te odio", "odio",  # 👈 AGREGADOS
                 "te voy a", "si no haces", "vas a ver", "te arrepentirás",
                 "suicid", "matar", "dañar", "golpear", "lastimar", 
                 "acabar", "subo tus fotos", "expongo", "publicar",
@@ -60,7 +62,7 @@ class SentimentAnalyzer:
         
         # Sistema de palabras clave para severidad
         self.severity_keywords = {
-            "alto": ["suicid", "matar", "dañar", "golpear", "lastimar", "subo tus fotos", "fotos íntimas"],
+            "alto": ["te odio", "odio", "suicid", "matar", "dañar", "golpear", "lastimar", "subo tus fotos", "fotos íntimas"],  # 👈 AGREGADOS
             "moderado": ["contraseñas", "revisa", "controla", "vigila", "celular", "chats", "bloquea", "expongo"]
         }
     
@@ -158,12 +160,14 @@ def analyze_sentiment(text):
 
 # PRUEBAS COMPLETAS DEL SISTEMA v2.0
 if __name__ == "__main__":
-    print("🔍 PROBANDO VERSIÓN 2.0 - SISTEMA OPTIMIZADO")
+    print("🔍 PROBANDO VERSIÓN 2.2 - SISTEMA OPTIMIZADO")
     print("=" * 65)
     print("Efectividad: 95% - Detección mejorada de patrones modernos")
     print("=" * 65)
     
     test_messages = [
+        "te odio",  # 👈 NUEVA PRUEBA
+        "odio a todos",  # 👈 NUEVA PRUEBA
         "Mi novio revisa mi celular y no me deja ver a mis amigas",
         "Me exige que le pase mis contraseñas de redes sociales", 
         "Dice que si lo dejo sube mis fotos íntimas a internet",
