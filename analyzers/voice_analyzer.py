@@ -1,15 +1,19 @@
 import telebot as tlb
 import os
 import json
-import time #?
-from typing import Optional #?
+import time
+from typing import Optional
 from groq import Groq
 from dotenv import load_dotenv
+
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from core.system_prompt import build_eva_prompt
 
 
 class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del analizador de voz del bot EVA, con la idea de que sea reutilizable
 
-    def __init__(self,  dataset_path: str = "data/dataset.json"):
+    def __init__(self,  dataset_path: str = "../data/dataset.json"):
 
         #Carga las variables de .env
         load_dotenv()
@@ -29,7 +33,7 @@ class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del a
         self.groq_client = Groq(api_key=self.groq_api_key)
 
         #Llamar dataset
-        self.company_data = self._load_dataset(dataset_path)
+        self.company_info = self._load_dataset(dataset_path)
 
         #Llamar handlers
         self._register_handlers()
@@ -38,13 +42,28 @@ class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del a
     #Cargar el dataset
     def _load_dataset(self, path: str):
         try:
-            with open (path, "r", encoding="utf-8") as f:
+            # 🧭 Obtener ruta absoluta del archivo
+            base_dir = os.path.dirname(os.path.abspath(__file__))  # /analyzers
+            abs_path = os.path.join(base_dir, "..", "data", "dataset.json")
+            abs_path = os.path.normpath(abs_path)  # Limpia la ruta final
+            print(f"📂 Buscando dataset en: {abs_path}")
+
+            # 📖 Intentar leer el archivo
+            with open(abs_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             print(f"✅ Dataset cargado correctamente: {data['company_info']['name']}")
             return data
-        except Exception as e:
-            print(f"❌ Error al cargar el dataset desde {path}: {str(e)}")
+
+        except FileNotFoundError:
+            print(f"⚠️ No se encontró el dataset en {abs_path}")
             return None
+        except json.JSONDecodeError as e:
+            print(f"❌ Error en formato JSON del dataset: {e}")
+            return None
+        except Exception as e:
+            print(f"❌ Error inesperado al cargar dataset: {e}")
+        return None
+
         
     #Registrar handlers
     def _register_handlers(self):
@@ -53,19 +72,38 @@ class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del a
             self._handle_voice_message(message)
         print("📡 Handler de voz registrado correctamente.")
 
+        
+        @self.bot.message_handler(commands=['start', 'hola'])
+        def start_handler(message):
+            self.bot.reply_to(message, "👋 ¡Hola! EVA está activa y lista para escucharte.")
+
+        @self.bot.message_handler(content_types=['text'])
+        def text_handler(message):
+            try:
+                user_message = message.text.strip()
+                print(f"💬 Mensaje de texto recibido: {user_message}")
+
+                # Mostrar acción "escribiendo"
+                self.bot.send_chat_action(message.chat.id, "typing")
+
+                # Obtener respuesta de Groq
+                response = self._get_groq_response(user_message)
+
+                if response:
+                    self.bot.reply_to(message, response)
+                    print(f"✅ Respuesta enviada: {response[:80]}...")
+                else:
+                    self.bot.reply_to(message, "No tengo una respuesta para eso 😅, pero puedo escucharte si quieres hablar.")
+            except Exception as e:
+                print(f"❌ Error en text_handler: {e}")
+                self.bot.reply_to(message, "Hubo un error procesando tu mensaje 😔.")
+
+
+
 
     def _get_groq_response(self, user_message: str) -> Optional[str]:
         try:
-            system_prompt = (
-                "Eres EVA, una asistente conversacional empática y responsable.\n"
-                "Responde ÚNICAMENTE usando la información del dataset provisto.\n"
-                "Si algo no está en el dataset, di: "
-                "\"No tengo esa información, pero puedo acompañarte si quieres hablar sobre cómo te sientes.\" \n"
-                "Nunca reveles datos sensibles, no inventes enlaces ni nombres, y mantén un tono claro y cuidadoso.\n\n"
-                "=== DATASET EVA ===\n"
-                f"{json.dumps(self.company_data, ensure_ascii=False, indent=2)}\n"
-                "=== FIN DATASET ==="
-                )
+            system_prompt = build_eva_prompt(self.company_info, input_type="voz")
             completion = self.groq_client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 temperature=0.2,           # más bajo = más fiel al dataset
@@ -108,7 +146,7 @@ class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del a
         
     def _handle_voice_message(self, message: tlb.types.Message):
         try:
-            self.bot.send_chat_action(message.chat.id, "escribiendo")
+            self.bot.send_chat_action(message.chat.id, "typing")
             print("🎧 Recibido mensaje de voz, procesando...")
             text = self._transcribe_voice(message)
             
@@ -132,8 +170,17 @@ class VoiceAnalyzer:  #Esta es la clase que engloba todo el comportamiento del a
 if __name__ == "__main__":
     print("🧠 Iniciando bot de voz EVA...")
     try:
-        eva = VoiceAnalyzer()  # crear instancia
+        eva = VoiceAnalyzer()
         print("✅ Bot inicializado correctamente.")
-        eva.bot.infinity_polling()  # activar escucha
+        # 🔁 Bucle de reconexión automática
+        while True:
+            try:
+                print("🚀 EVA escuchando mensajes...")
+                eva.bot.polling(non_stop=True, timeout=60, long_polling_timeout=5)
+            except Exception as poll_error:
+                print(f"⚠️ Error interno en polling: {type(poll_error).__name__} -> {poll_error}")
+                time.sleep(3)
+                print("🔁 Reintentando conexión...\n")
+
     except Exception as e:
-        print(f"❌ Error al iniciar EVA: {e}")
+        print(f"❌ Error crítico al iniciar EVA: {e}")
