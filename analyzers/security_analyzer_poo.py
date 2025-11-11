@@ -145,4 +145,3 @@ class SecurityAnalyzer:
 # Para compatibilidad
 def analyze_sentiment(text):
     analyzer = SecurityAnalyzer()
-    return analyzer.analyze_message(text)
