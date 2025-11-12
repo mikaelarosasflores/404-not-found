@@ -238,3 +238,4 @@ if __name__ == "__main__":
         print("[DBG] delete_webhook:", repr(e))
     bot.infinity_polling(timeout=10, long_polling_timeout=10)
 
+# Agregado: mejora en el manejo de OCR y respuestas empáticas
