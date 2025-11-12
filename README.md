@@ -1,4 +1,5 @@
 # 🔍 Analisis de Sentimiento - Resumen Breve
+---------------------------------------
 
 Que desarrolle?
 Un sistema funcional de analisis centrado en la deteccion de patrones de violencia, probado y operativo a traves de mis modulos principales.
@@ -67,16 +68,18 @@ pip install python-dotenv==1.0.0
 
 Esperar a que termine cada instalacion.
 
-Paso 5: Configurar tokens
--------------------------
+Paso 5: Configurar tokens - IMPORTANTE
+--------------------------------------
 1. Crear archivo .env en la misma carpeta
-2. Abrir el archivo .env con bloc de notas
+2. Abrir el archivo .env con bloc de notas o Visual Studio Code
 3. Pegar este contenido:
 
 TELEGRAM_TOKEN=tu_token_de_telegram_aqui
 GROQ_API_KEY=tu_api_key_de_groq_aqui
 
-4. Guardar el archivo
+4. REEMPLAZAR "tu_token_de_telegram_aqui" con tu token real de Telegram
+5. REEMPLAZAR "tu_api_key_de_groq_aqui" con tu API Key real de Groq
+6. Guardar el archivo
 
 Como conseguir los tokens:
 - Token Telegram: Buscar @BotFather en Telegram, crear bot con /newbot
@@ -108,6 +111,7 @@ analiza: me amenazan con publicar fotos
 analiza: no me dejan salir de casa
 analiza: me insultan y humillan
 analiza: me piden mis contraseñas
+analiza: te quiero matar
 
 Para expresar emociones (el bot analiza tu estado de animo):
 me siento triste
@@ -131,8 +135,8 @@ gracias
 listo
 ya está
 
-EJEMPLOS QUE FUNCIONAN
-=====================
+EJEMPLOS QUE FUNCIONAN - PROBADOS
+=================================
 
 Ejemplo 1: Analisis de violencia digital
 Usuario: analiza: mi ex quiere mis contraseñas de Instagram
@@ -146,11 +150,15 @@ Ejemplo 3: Analisis de amenazas
 Usuario: analiza: me amenaza con venir a mi casa
 Bot: Detecta AMENAZAS Y ACOSO - Riesgo MODERADO
 
-Ejemplo 4: Expresar emociones - ANALISIS DE SENTIMIENTO
+Ejemplo 4: Analisis de amenazas graves
+Usuario: analiza: te quiero matar
+Bot: Detecta AMENAZAS Y ACOSO - Riesgo MODERADO
+
+Ejemplo 5: Expresar emociones - ANALISIS DE SENTIMIENTO
 Usuario: me siento triste y asustada
 Bot: Detecta TRISTEZA y MIEDO - Ofrece consejos especificos para esas emociones
 
-Ejemplo 5: Cerrar conversacion
+Ejemplo 6: Cerrar conversacion
 Usuario: no, gracias
 Bot: Se despide adecuadamente
 
@@ -161,23 +169,25 @@ Sistema 1: Analisis de Seguridad
 - Analiza mensajes en busca de 7 tipos de violencia
 - Evalua nivel de riesgo (Alto, Moderado, Leve)
 - Ofrece recursos de ayuda especificos
+- Recomendaciones personalizadas segun el tipo de violencia detectada
 
 Sistema 2: Analisis de Sentimiento
 - Detecta emociones del usuario (tristeza, miedo, enojo, etc.)
 - Analiza el estado emocional de la persona
 - Ofrece consejos personalizados segun la emocion detectada
 - Proporciona apoyo emocional contextual
+- Mantiene conversacion natural preguntando "¿Como te sientes?"
 
 TIPOS DE VIOLENCIA QUE DETECTA
 =============================
 
-1. Violencia Psicologica - insultos, humillaciones
-2. Violencia Fisica - golpes, agresiones
-3. Violencia Digital - control de redes, contraseñas
-4. Control y Aislamiento - prohibir salidas, amistades
-5. Manipulacion Emocional - chantaje, culpas
-6. Amenazas y Acoso - persecucion, intimidacion
-7. Violencia Economica - control de dinero, sueldo
+1. Violencia Psicologica - insultos, humillaciones, gaslighting
+2. Violencia Fisica - golpes, agresiones, uso de armas
+3. Violencia Digital - control de redes, contraseñas, stalkeo
+4. Control y Aislamiento - prohibir salidas, amistades, movimientos
+5. Manipulacion Emocional - chantaje, culpas, amenazas de suicidio
+6. Amenazas y Acoso - persecucion, intimidacion, hostigamiento
+7. Violencia Economica - control de dinero, sueldo, recursos
 
 EMOCIONES QUE DETECTA
 ====================
@@ -199,41 +209,63 @@ LINEAS DE AYUDA INCLUIDAS
 - Linea 141 - Salud mental
 - 911 - Emergencias
 
-SOLUCION DE PROBLEMAS
-====================
+SOLUCION DE PROBLEMAS - CONFIGURACION
+====================================
 
 Si sale error "Module not found":
-- Verificar que el entorno virtual esta activado
+- Verificar que el entorno virtual esta activado (debe verse (chatbot_env))
 - Revisar que se instalaron las 3 dependencias exactas
+- Ejecutar nuevamente: pip install pyTelegramBotAPI==4.15.2 groq==0.9.0 python-dotenv==1.0.0
 
 Si sale error de tokens:
 - Verificar que el archivo .env esta en la carpeta correcta
-- Confirmar que los tokens son validos
+- Confirmar que los tokens son validos y estan activos
+- El archivo .env debe tener EXACTAMENTE 2 lineas con tus tokens reales
 
 Si el bot no responde:
 - Verificar que se ejecuto python bot_test.py
 - Confirmar que aparece "Escuchando mensajes..."
+- Revisar que el token de Telegram es correcto
 
 Si no detecta patrones:
 - Asegurarse de usar "analiza:" antes del mensaje
-- Verificar que el mensaje contiene palabras clave
+- Verificar que el mensaje contiene palabras clave de violencia
+- Probar con ejemplos que funcionan: "analiza: te quiero matar"
+
+Si hay problemas con el entorno virtual en Windows:
+- Usar Command Prompt (CMD) en lugar de PowerShell
+- Ejecutar: chatbot_env\Scripts\activate.bat
 
 ARCHIVOS NECESARIOS
 ==================
 
-- bot_test.py (archivo principal)
-- requirements.txt (dependencias)
+- bot_test.py (archivo principal del chatbot)
+- requirements.txt (dependencias necesarias)
 - .env (tokens - NO SUBIR A INTERNET)
-- sentiment_analyzer.py (analizador base)
-- security_analyzer_poo.py (analizador avanzado)
+- sentiment_analyzer.py (analizador base de sentimientos)
+- security_analyzer_poo.py (analizador avanzado de seguridad)
 
-NOTAS IMPORTANTES
-================
+NOTAS IMPORTANTES DE CONFIGURACION
+==================================
 
-- Nunca compartas tu archivo .env
+- Nunca compartas tu archivo .env - contiene informacion sensible
 - El bot es confidencial pero no reemplaza ayuda profesional
-- Funciona para cualquier genero
+- Funciona para cualquier genero - lenguaje inclusivo
 - Esta probado y funcionando correctamente
 - Tiene doble sistema: seguridad + analisis emocional
+- Los tokens deben ser REALES, no los textos de ejemplo
+- El archivo .env debe crearse manualmente y guardarse correctamente
+
+PROBLEMAS COMUNES RESUELTOS
+==========================
+
+Problema: "Bot token is not defined"
+Solucion: El archivo .env no existe o esta vacio. Crearlo manualmente con los tokens reales.
+
+Problema: "Groq no disponible"
+Solucion: La API Key de Groq no es valida o el archivo .env no se lee correctamente.
+
+Problema: No detecta patrones de violencia
+Solucion: Usar exactamente "analiza:" antes del mensaje. Probar con ejemplos que funcionan.
 
 By Frida
