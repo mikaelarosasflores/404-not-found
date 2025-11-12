@@ -182,3 +182,6 @@ class GroqVisionClient:
             "evidence": evid,
             "recommendations": recs
         }
+
+# Modularización: organice el proyecto en carpetas (analyzers, core, utils, bot, data)
+# Mejora la lectura, el mantenimiento y el trabajo en equipo.
