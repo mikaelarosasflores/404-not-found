@@ -1,90 +1,88 @@
-🧠 Análisis de Imágenes y Detección de Violencia
-📍 Proyecto: EVA_BOT – Módulo de Visión (por Gabriela Galarza)
-🔍 ¿Qué desarrollé?
+<h1 align="center">🩷 EVA_BOT – Módulo de Visión (OCR + Empatía)</h1>
+<p align="center">
+  <b>Proyecto de detección de violencia digital mediante análisis de imágenes</b><br/>
+  Por <b>Gabriela Galarza</b> · Integración con Groq Vision, Tesseract y respuestas empáticas
+</p>
 
-Implementé un sistema funcional de análisis de imágenes enfocado en la detección de patrones de violencia digital (insultos, agresiones verbales y contenido sensible).
-El sistema combina visión artificial (GROQ), OCR local (Tesseract) y reglas contextuales, integrándose con el chatbot principal.
+---
 
-🧩 Módulos desarrollados y funcionalidades principales
+## 🌸 ¿Qué desarrollé?
+Implementé un sistema funcional de **análisis de imágenes** enfocado en la **detección de patrones de violencia digital**  
+(insultos, agresiones verbales o contenido sensible).  
+El sistema combina **visión artificial (GROQ)**, **OCR local (Tesseract + OpenCV)** y **reglas contextuales**,  
+integrándose con el chatbot principal de Telegram.
 
-1. 🖼️ analyzers/vision.py
+---
 
+## 🧩 Módulos desarrollados y funcionalidades principales
+
+### 1️⃣ `analyzers/vision.py`
 Sistema de análisis visual y OCR (en español e inglés).
 
-Detección de insultos o frases agresivas mediante texto extraído de imágenes.
+- 🧠 Detección de insultos o frases agresivas mediante texto extraído de imágenes.  
+- 🔎 Clasificación de severidad: **leve**, **media**, **alta**.  
+- 🧱 Fallback inteligente: si no hay acceso a modelos de visión (GROQ), usa OCR local con **OpenCV y PyTesseract**.  
+- 🧬 Detección experimental de **manipulación digital** (bordes, distorsión, contraste).  
 
-Clasificación de severidad: leve, media y alta.
+**Preprocesamiento de imágenes (OpenCV):**
+- Escalado a 1200 px  
+- Binarización  
+- Contraste aumentado  
+- Reducción de ruido  
+- Configuración OCR: `--oem 3 --psm 6 -l spa+eng`
 
-Fallback inteligente: si no hay acceso a modelos de visión (GROQ), usa OCR local con OpenCV y Pytesseract.
+---
 
-Detección experimental de manipulación digital (bordes, distorsión, contraste).
+### 2️⃣ `main.py`
+Bot de Telegram completamente funcional integrado con el analizador de visión.
 
-2. 🤖 main.py
+- 💬 Implementación de **mensajes empáticos** y **recursos de ayuda** según país.  
+- ⚙️ Comandos implementados:
+  - `/start` → mensaje de bienvenida  
+  - `/help` → guía de uso  
+  - `/setcountry AR` → cambia país (por ISO-2)  
+  - `/ping` → prueba de conexión  
 
-Bot funcional de Telegram integrado con el analizador.
+El bot interpreta los resultados del analizador y devuelve:
+- Categorías de violencia detectadas  
+- Nivel de severidad  
+- Evidencias (palabras o frases extraídas)  
+- Recomendaciones y recursos de ayuda (ej. Línea 144, ONU Mujeres)  
+- Nota de privacidad y cierre empático 💌  
 
-Implementación completa de mensajes empáticos y recursos de ayuda según país.
+---
 
-Comandos implementados:
+## 💫 Resultado comprobado
+✅ El sistema procesa correctamente capturas de chat (WhatsApp, IG, etc.)  
+✅ Clasifica insultos por tipo y severidad  
+✅ Devuelve evidencias y recomendaciones adaptadas al país  
+✅ Ofrece respuestas empáticas automáticas con privacidad protegida  
 
-/start – Mensaje de bienvenida.
+---
 
-/help – Guía de uso.
+## 🧠 Mensajes empáticos automáticos
+> “Lamento que estés lidiando con esto. No estás sola/o: estoy para ayudarte. No es tu culpa.”  
+> “Podés borrar este chat cuando quieras; no guardo tus imágenes.”  
+> “Si querés, puedo buscar más recursos o pensar junt@s próximos pasos.”
 
-/setcountry – Cambia país de referencia (por ISO-2).
+---
 
-/ping – Prueba de conexión.
+## 🛠️ Tecnologías utilizadas
 
-Sistema de respuestas contextualizadas con tono humano y mensaje de contención.
+| Herramienta / Librería | Función |
+|------------------------|----------|
+| 🐍 **Python** | Base del proyecto |
+| 🤖 **PyTelegramBotAPI** | Interacción con Telegram |
+| 👁️ **Groq API** | Análisis con visión artificial (modelo `llama-3.2-vision-preview`) |
+| 🧩 **Tesseract OCR + OpenCV + NumPy** | OCR local (fallback) y preprocesamiento |
+| 🧾 **python-dotenv** | Carga segura de claves y variables de entorno |
+| 🖼️ **Pillow** | Manipulación de imágenes |
 
-3. ⚙️ core/recommender.py
+---
 
-Repositorio de recursos locales de ayuda (144, 911, ONU Mujeres).
+## ⚙️ Configuración
 
-Se adapta dinámicamente al país del usuario.
-
-Prioriza recomendaciones claras y accesibles.
-
-💡 Mejoras técnicas implementadas
-
-Reestructuración completa del proyecto en arquitectura modular (OOP).
-
-OCR local optimizado:
-
-Preprocesamiento con OpenCV (escala, binarización, contraste, reducción de ruido).
-
-Configuración --oem 3 --psm 6 -l spa+eng.
-
-Respuestas empáticas automatizadas: mensajes de apoyo, privacidad y cuidado.
-
-Control de errores robusto: mensajes claros si falta token, modelo o conexión.
-
-.env aislado para seguridad.
-
-Integración total con el chatbot principal del equipo.
-
-🧪 Resultados comprobados
-
-✔ Detección exitosa de frases agresivas en capturas de WhatsApp y redes sociales.
-✔ Clasificación de violencia verbal y recomendación de recursos de ayuda.
-✔ Funcionamiento estable en Telegram con mensajes claros, cálidos y empáticos.
-
-🧰 Tecnologías utilizadas
-
-Python 3.10
-
-Telebot (PyTelegramBotAPI)
-
-Pytesseract + OpenCV + NumPy
-
-Groq API (llama-3.2-vision-preview)
-
-Pillow
-
-Dotenv
-
-🌍 Impacto del módulo
-
-El sistema busca detectar, contener y orientar ante posibles situaciones de violencia digital, cuidando la privacidad y ofreciendo recursos útiles y humanos.
-
-"No se trata solo de analizar imágenes, sino de acompañar con empatía." 💛
+1. Crear un entorno virtual:
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
