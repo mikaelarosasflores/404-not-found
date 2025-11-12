@@ -185,3 +185,6 @@ class GroqVisionClient:
 
 # Modularización: organice el proyecto en carpetas (analyzers, core, utils, bot, data)
 # Mejora la lectura, el mantenimiento y el trabajo en equipo.
+
+# 🖼️ OCR mejorado: integración de pytesseract (spa+eng) para aumentar precisión en español e inglés.
+# Se añadieron filtros de contraste y binarización para mejor detección de texto.

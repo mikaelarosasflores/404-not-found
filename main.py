@@ -241,3 +241,4 @@ if __name__ == "__main__":
 # Agregado: mejora en el manejo de OCR y respuestas empáticas
 # Refactor: el código fue migrado a un enfoque orientado a objetos (OOP)
 # Esto permite una mejor organización, mantenimiento y escalabilidad del bot.
+# Incluye recursos locales (Línea 144, ONU Mujeres, 911) y consejos de autocuidado.
