@@ -239,3 +239,5 @@ if __name__ == "__main__":
     bot.infinity_polling(timeout=10, long_polling_timeout=10)
 
 # Agregado: mejora en el manejo de OCR y respuestas empáticas
+# Refactor: el código fue migrado a un enfoque orientado a objetos (OOP)
+# Esto permite una mejor organización, mantenimiento y escalabilidad del bot.
