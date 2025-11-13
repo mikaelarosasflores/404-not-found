@@ -172,5 +172,4 @@ Incluye fallback automático si Groq Vision no está disponible.
 
 Toda la información procesada se mantiene privada.
 
-yaml
-Copiar código
+
