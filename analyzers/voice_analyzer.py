@@ -1,93 +1,41 @@
 import telebot as tlb
-import os 
-import json
-from groq import Groq
-from typing import Optional
-import time
-from dotenv import load_dotenv
-
-#----------------------TEST DE DATOS--------------------------------
-#-------------------------------------
-# ==========================
-#   CONFIGURACIÓN DEL BOT
-# ==========================
-
-# Cargar variables del archivo .env
-load_dotenv()
-
-TELEGRAM_TOKEN = ""
-GROQ_API_KEY = ""
-
-if not TELEGRAM_TOKEN:
-    raise ValueError("❌ Falta TELEGRAM_TOKEN en .env")
-
-if not GROQ_API_KEY:
-    raise ValueError("❌ Falta GROQ_API_KEY en .env")
-
-# Crear instancias principales
-bot = tlb.TeleBot(TELEGRAM_TOKEN)
-groq_client = Groq(api_key=GROQ_API_KEY)
-
-# Dataset mínimo para que la clase no falle
-dataset = {
-    "company_info": {"name": "Bot de Prueba"}
-}
-
-# System prompt simple para testear
-system_prompt = "Eres un asistente de prueba, responde de forma breve."
-
-# IMPORTANTE:
-# VoiceAnalyzer debe estar definida más abajo
-# o en otro archivo con import
-
-
-
-#-----------------------------------------
-def get_groq_response(texto):
-    try:
-        completion = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": texto}
-            ]
-        )
-        return completion.choices[0].message.content.strip()
-    except Exception as e:
-        print("Error Groq:", e)
-        return None
-    
-#----------------------TEST DE DATOS--------------------------------
-
-
-
 #----------------------VOICE ANALYZER-------------------------------
 class VoiceAnalyzer:
-        def __init__(self, bot, groq_client, dataset, system_prompt):
+        def __init__(self, bot, groq_client, sentiment_analyzer):
             self.bot = bot
             self.groq_client = groq_client
-            self.dataset = dataset
-            self.system_prompt = system_prompt
-
+            self.sentiment = sentiment_analyzer
 
         def register_handlers(self):
 
             @self.bot.message_handler(content_types=['voice'])
             def handle_voice_message(message: tlb.types.Message):
-                transcription = self.transcribe_voice(message)
-                if not transcription:
+                text = self.transcribe_voice(message)
+                if not text:
                     self.bot.reply_to(message, "Lo siento mucho, no pude escucharte bien, ¿Podrías repetirlo? 🌻")
                     return
 
-                response = get_groq_response(transcription)
+                # 1) MANDA EL TEXTO A SENTIMENT ANALYZER
+                analysis = self.sentiment.analyze_text(text)
+                riesgo = analysis["nivel_riesgo"]
+                respuesta_sentiment = analysis["respuesta_recomendada"]
+
+                #SI HAY RIESGO:
+                if riesgo in ("leve", "moderado", "alto"):
+                    self.bot.reply_to(message, respuesta_sentiment)
+                    return
+                
+                #NO HAY RIESGO:
+                response = self._groq_response(text)
+
                 if response:
-                    self.bot.reply_to(message,  response)
-                else: 
-                    self.bot.reply_to(message,"No pude procesar tu mensaje, inténtalo de nuevo en unos segundos. ✨")
+                    self.bot.reply_to(message, response)
+                else:    
+                    self.bot.reply_to(message, "Tuve un problema procesando tu audio, ¿puedes intentarlo otra vez? ✨")
         
-        def transcribe_voice(self, message):
+        def transcribe_voice(self, texto):
             try:
-                file_info = self.bot.get_file(message.voice.file_id)
+                file_info = self.bot.get_file(texto.voice.file_id)
                 download_file = self.bot.download_file(file_info.file_path)
                 
                 #archivo temporal:
@@ -114,12 +62,3 @@ class VoiceAnalyzer:
             except Exception as e:
                     print(f"Error al transcribir: {str(e)}")
                     return None
-            
-
-#prueba
-if __name__ == "__main__":
-    voice = VoiceAnalyzer(bot, groq_client, dataset, system_prompt)
-    voice.register_handlers()
-
-    print("🎙️ Bot de VOZ en modo prueba listo. Envíame un audio.")
-    bot.polling()
