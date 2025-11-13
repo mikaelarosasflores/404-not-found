@@ -1,141 +1,158 @@
-EVA_BOT – Módulo de Visión (OCR + Análisis de Violencia)
+# EVA_BOT – Módulo de Visión (OCR + Análisis de Violencia)
 
-Autora: Gabriela Galarza
-Proyecto: Detección de violencia digital mediante análisis de imágenes
-Integración: Groq Vision · OpenCV · Tesseract · PyTelegramBotAPI
+**Autora:** Gabriela Galarza  
+**Proyecto:** Detección de violencia digital mediante análisis de imágenes  
+**Integración:** Groq Vision · Tesseract · OpenCV · PyTelegramBotAPI
 
-1. ¿Qué desarrollé?
+---
 
-Implementé un módulo completo de análisis de imágenes para detectar patrones de violencia digital presentes en capturas de pantalla (WhatsApp, Instagram, etc.).
+## 1. ¿Qué desarrollé?
+
+Implementé un módulo completo de análisis de imágenes para detectar patrones de violencia digital presentes en capturas de pantalla (WhatsApp, Instagram, redes sociales, etc.).
 
 El sistema combina:
 
-Análisis con modelos de visión (Groq Vision)
+- Análisis con modelos de visión artificial (Groq Vision)
+- OCR local como alternativa (Tesseract + OpenCV)
+- Reglas contextuales para clasificar insultos y agresiones
+- Preprocesamiento avanzado para mejorar el texto extraído
+- Integración con el bot principal de Telegram
 
-OCR local como alternativa (Tesseract + OpenCV)
+El módulo funciona como un analizador autónomo, con fallback automático si la API de visión no está disponible.
 
-Reglas contextuales para clasificar insultos
+---
 
-Preprocesamiento avanzado para mejorar el texto extraído
+## 2. Módulos y funcionalidades principales
 
-Conexión directa con el chatbot principal de Telegram
+### 2.1. `analyzers/vision.py` – Análisis de visión y OCR
 
-Mi módulo funciona como un analizador especializado dentro del bot EVA_BOT.
+Incluye:
 
-2. Módulos y funcionalidades principales
-2.1 analyzers/vision.py – Módulo de visión y OCR
+- OCR en español e inglés (`spa+eng`)
+- Detección de insultos, agresiones verbales y contenido sensible
+- Clasificación por severidad (leve, media, alta)
+- Fallback automático (Groq Vision → Tesseract)
+- Detección básica de manipulación digital (contraste, bordes)
+- Limpieza y normalización del texto detectado
 
-✔ OCR en español e inglés (spa+eng)
-✔ Detección de insultos, agresiones verbales y contenido sensible
-✔ Clasificación por severidad: leve, media, alta
-✔ Preprocesamiento con OpenCV:
+#### Preprocesamiento con OpenCV
 
-Escalado a 1200 px
+- Escalado a 1200 px  
+- Binarización  
+- Aumento de contraste  
+- Reducción de ruido  
 
-Binarización
+#### Configuración OCR utilizada
 
-Aumento de contraste
+--oem 3 --psm 6 -l spa+eng
 
-Reducción de ruido
-✔ Fallback inteligente:
-Si Groq Vision no está disponible → usa OCR local automáticamente
-✔ Detección experimental de manipulación digital (bordes, distorsión, contraste)
+yaml
+Copiar código
 
-Configuración OCR utilizada:
+---
 
---oem 3 
---psm 6 
--l spa+eng
+## 3. `main.py` – Integración con Telegram
 
-2.2 main.py – Bot de Telegram integrado al analizador
+El bot recibe una imagen del usuario y devuelve:
 
-Funcionalidades implementadas:
+- Si se detectó violencia digital
+- Categorías identificadas
+- Nivel de severidad
+- Evidencias (texto extraído)
+- Recomendaciones y recursos por país
+- Nota de privacidad
+- Mensaje empático de acompañamiento
 
-Interpretación completa de resultados del analizador de imágenes
+### Comandos disponibles
 
-Envío de recomendaciones según severidad
+/start → Mensaje de bienvenida
+/help → Guía de uso
+/setcountry → Cambiar país según código ISO-2
+/ping → Prueba de conexión
 
-Recursos de ayuda según país (ej.: Línea 144 en AR)
+yaml
+Copiar código
 
-Mensajes empáticos para acompañar al usuario
+---
 
-Comandos disponibles:
+## 4. Mensajes empáticos automáticos
 
-/start        → mensaje de bienvenida  
-/help         → guía de uso  
-/setcountry   → cambia país por ISO-2  
-/ping         → prueba de conexión  
+El sistema devuelve respuestas empáticas para acompañar al usuario:
 
+> “Lamento que estés pasando por esto. No estás solo/a.”  
+> “Puedes borrar este chat cuando quieras; no guardo tus imágenes.”  
+> “Si querés, puedo buscar más recursos o ayudarte con próximos pasos.”
 
-El bot devuelve:
+---
 
-Categorías detectadas
+## 5. Ejemplos de funcionamiento
 
-Nivel de severidad
+### Ejemplo 1 — Insultos detectados
+**Entrada:** captura con frases agresivas.  
+**Salida:**  
+- Violencia detectada: Sí  
+- Categorías: verbal  
+- Severidad: media  
+- Evidencias: insultos extraídos  
+- Recomendación: no responder, bloquear, guardar evidencia  
 
-Evidencias (frases extraídas)
+### Ejemplo 2 — Sin violencia detectada
+**Entrada:** captura sin contenido ofensivo.  
+**Salida:**  
+- Violencia detectada: No  
+- Evidencias: texto neutral  
+- Recomendación: mensaje empático y de disponibilidad  
 
-Recomendaciones y recursos útiles
+### Ejemplo 3 — API Groq no disponible (modo fallback)
+**Entrada:** imagen borrosa  
+**Salida:**  
+- Análisis realizado con OCR local  
+- Advertencia: análisis sin LLM  
+- Evidencias extraídas parcialmente  
 
-Nota de privacidad
+---
 
-3. Resultado comprobado
+## 6. Tecnologías utilizadas
 
-✔ Procesa correctamente capturas de chat
-✔ Detecta insultos y agresiones verbales
-✔ Clasifica severidad en 3 niveles
-✔ Funciona incluso sin Groq (usa OCR local)
-✔ Devuelve mensajes empáticos y profesionales
-✔ No guarda imágenes → privacidad asegurada
+| Herramienta / Librería        | Función |
+|-------------------------------|---------|
+| Python                        | Lenguaje principal |
+| PyTelegramBotAPI              | Interacción con Telegram |
+| Groq Vision API               | Análisis de visión artificial |
+| Tesseract OCR + OpenCV + NumPy| OCR local y preprocesamiento |
+| python-dotenv                 | Manejo de variables de entorno |
+| Pillow                        | Manipulación de imágenes |
 
-4. Mensajes empáticos automáticos
+---
 
-El bot incluye mensajes diseñados para acompañar a la persona:
+## 7. Instalación
 
-“Lamento que estés lidiando con esto. No estás solo/a: estoy para ayudarte. No es tu culpa.”
-“Puedes borrar este chat cuando quieras; no guardo tus imágenes.”
-“Si quieres, puedo buscar más recursos o pensar en los próximos pasos.”
+### 7.1 Crear entorno virtual
 
-5. Tecnologías utilizadas
-Herramienta / Librería	Función
-Python	Base del módulo
-PyTelegramBotAPI	Interacción con Telegram
-Groq API	Análisis con visión artificial
-Tesseract OCR + OpenCV	OCR local y preprocesamiento
-NumPy	Procesamiento de matrices
-Pillow	Manipulación de imágenes
-python-dotenv	Carga de claves y variables de entorno
-6. Instalación del entorno
-6.1 Crear entorno virtual
+```bash
 python -m venv .venv
-
-
-Activar entorno:
-
-source .venv/Scripts/activate   # Windows
-
-6.2 Instalar dependencias
+source .venv/Scripts/activate
+7.2 Instalar dependencias
+bash
+Copiar código
 pip install -r requirements.txt
+8. Configurar archivo .env
+El archivo .env no debe subirse al repositorio.
+Solo se documenta el formato necesario.
 
-7. Configurar archivo .env
-
-Este archivo NO debe subirse al repositorio.
-Solo se documenta el formato requerido.
-
+ini
+Copiar código
 TELEGRAM_BOT_TOKEN=tu_token
 GROQ_API_KEY=tu_api_key
-
-
 Reemplazar por valores reales.
 
-8. Ejecutar el bot
+9. Ejecutar el bot
+bash
+Copiar código
 python main.py
+Si la configuración es correcta, el bot quedará escuchando imágenes y mensajes.
 
-
-Si todo está correctamente configurado, el bot quedará escuchando mensajes e imágenes.
-
-9. Archivos necesarios
-
+10. Archivos necesarios
 main.py
 
 analyzers/vision.py
@@ -144,19 +161,16 @@ requirements.txt
 
 .env (local, no subir)
 
-10. Notas importantes
+11. Notas importantes
+El archivo .env no debe compartirse ni subirse.
 
-No guardar ni compartir el archivo .env
+No se guardan imágenes ni datos privados.
 
-Este sistema no reemplaza ayuda profesional
+El sistema no reemplaza ayuda profesional.
 
-Toda la información procesada se mantiene privada
+Incluye fallback automático si Groq Vision no está disponible.
 
-El bot está probado en entorno real con capturas de chat
+Toda la información procesada se mantiene privada.
 
-Este módulo se integra con otros analizadores del proyecto EVA_BOT
-
-11. Estado actual
-
-El módulo quedó funcional, probado e integrado al bot general del equipo.
-Detecta insultos, clasifica severidad y devuelve recursos de ayuda y mensajes empáticos.
+yaml
+Copiar código
