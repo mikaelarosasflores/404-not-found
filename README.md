@@ -125,3 +125,4 @@ El sistema devuelve respuestas empáticas para acompañar al usuario:
 
 ---
 
+ 
