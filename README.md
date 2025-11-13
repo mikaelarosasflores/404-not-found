@@ -144,32 +144,29 @@ ini
 Copiar código
 TELEGRAM_BOT_TOKEN=tu_token
 GROQ_API_KEY=tu_api_key
-Reemplazar por valores reales.
+Reemplazar ambos valores por los tokens reales.
 
 9. Ejecutar el bot
 bash
 Copiar código
 python main.py
-Si la configuración es correcta, el bot quedará escuchando imágenes y mensajes.
+Si la configuración es correcta, el bot quedará ejecutándose y escuchando imágenes y mensajes.
 
 10. Archivos necesarios
+bash
+Copiar código
 main.py
-
 analyzers/vision.py
-
 requirements.txt
-
-.env (local, no subir)
-
+.env        (local, no subir)
 11. Notas importantes
-El archivo .env no debe compartirse ni subirse.
+El archivo .env no debe compartirse ni subirse al repositorio.
 
 No se guardan imágenes ni datos privados.
 
 El sistema no reemplaza ayuda profesional.
 
-Incluye fallback automático si Groq Vision no está disponible.
+Incluye fallback automático cuando Groq Vision no está disponible.
 
-Toda la información procesada se mantiene privada.
-
+Toda la información procesada se mantiene privada en el dispositivo local.
 
