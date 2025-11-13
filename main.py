@@ -1,33 +1,245 @@
 import os
 import logging
 import random
+import base64
+from io import BytesIO
+
 from dotenv import load_dotenv
 import telebot
 
-from utils import clean_key, downscale_if_needed, bytes_to_b64
-from analyzers.vision import GroqVisionClient
-from core.recommender import HelpDirectory
-from core.classifier import classify_text  # <— REGLAS LOCALES (OCR)
+# --- imports opcionales (no romper si faltan) ---
+try:
+    import cv2  # type: ignore
+    import numpy as np  # type: ignore
+    _CV_OK = True
+except Exception:
+    cv2 = None
+    np = None
+    _CV_OK = False
 
-# --- Cargar .env ---
-load_dotenv(dotenv_path=os.path.join("bot", ".env"))
-TELEGRAM_BOT_TOKEN = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
-GROQ_API_KEY = clean_key(os.getenv("GROQ_API_KEY", ""))
+from PIL import Image
+import pytesseract
 
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("Falta TELEGRAM_BOT_TOKEN en bot/.env")
-if not GROQ_API_KEY:
-    raise ValueError("Falta GROQ_API_KEY en bot/.env")
+# ------------------------------------------------------
+#  Cargar variables de entorno (.env en la raíz)
+# ------------------------------------------------------
+load_dotenv() 
 
-# --- Init ---
-telebot.logger.setLevel(logging.INFO)
-bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN, parse_mode="Markdown")
-vision = GroqVisionClient(GROQ_API_KEY, model="llama-3.2-90b-vision-preview")
-helpdir = HelpDirectory()
-user_country = {}
-user_mode = {}  # modo_cuidado on/off
+# ------------------------------------------------------
+#  UTILIDADES BÁSICAS (reemplazan utils.*)
+# ------------------------------------------------------
+def clean_key(key: str | None) -> str:
+    """Limpia la API key (antes venía de utils.clean_key)."""
+    return (key or "").strip()
 
-# ---------------- Empatía y tono humano ----------------
+def bytes_to_b64(data: bytes) -> str:
+    """Convierte bytes de imagen a base64 (antes venía de utils.bytes_to_b64)."""
+    return base64.b64encode(data).decode("utf-8")
+
+def downscale_if_needed(image_bytes: bytes, max_side: int = 1600) -> bytes:
+    """
+    Reduce el tamaño de la imagen si es muy grande.
+    Equivalente a utils.downscale_if_needed pero local a este archivo.
+    """
+    try:
+        img = Image.open(BytesIO(image_bytes)).convert("RGB")
+        w, h = img.size
+        scale = max(w, h) / max_side
+        if scale > 1:
+            new_w, new_h = int(w / scale), int(h / scale)
+            img = img.resize((new_w, new_h), Image.LANCZOS)
+        out = BytesIO()
+        img.save(out, format="JPEG", quality=90)
+        return out.getvalue()
+    except Exception as e:
+        print("[ERR] downscale_if_needed:", e)
+        return image_bytes
+
+def _decode_b64_to_cv2(b64_str: str):
+    if not _CV_OK:
+        return None
+    try:
+        img_data = base64.b64decode(b64_str)
+        np_arr = np.frombuffer(img_data, np.uint8)
+        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        return img
+    except Exception as e:
+        print("[ERR] _decode_b64_to_cv2:", e)
+        return None
+
+# ------------------------------------------------------
+#  Directorio de ayuda simple (reemplaza HelpDirectory)
+# ------------------------------------------------------
+from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class HelpResource:
+    title: str
+    contact: str
+    note: str | None = None
+
+class HelpDirectory:
+    """
+    Versión simplificada embebida en este archivo.
+    Podés ajustar contactos o agregar más países/categorías.
+    """
+    def __init__(self):
+        self.data = {
+            "AR": {
+                "general": [
+                    HelpResource("Línea 144", "144", "Atención a personas en situación de violencia por motivos de género."),
+                    HelpResource("Emergencias", "911", "Si hay riesgo inmediato."),
+                ],
+                "verbal": [
+                    HelpResource("Línea 144", "144", "Podés pedir orientación sobre violencia psicológica o verbal.")
+                ],
+            }
+        }
+
+    def get(self, country: str, category: str) -> List[HelpResource]:
+        country = (country or "AR").upper()
+        cat = category or "general"
+        by_country = self.data.get(country, self.data["AR"])
+        return by_country.get(cat, by_country.get("general", []))
+
+# ------------------------------------------------------
+#  Configuración de Tesseract
+# ------------------------------------------------------
+if os.name == "nt":
+    default_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.isfile(default_path):
+        pytesseract.pytesseract.tesseract_cmd = default_path
+
+    # Si lo instalaste en otro lado, cambiá la ruta de arriba.
+
+# ------------------------------------------------------
+#  CLIENTE DE VISIÓN
+# ------------------------------------------------------
+class GroqVisionClient:
+    """
+    Cliente de visión local: usa sólo OCR + reglas para detectar violencia.
+    (Si luego habilitan Groq visión, acá se puede integrar el LLM.)
+    """
+
+    def __init__(self, api_key: str, model: str = "llama-3.2-90b-vision-preview"):
+        self.api_key = api_key
+        self.model = model
+
+    # ---------- OCR embebido en la clase ----------
+    def ocr_text(self, b64: str) -> str:
+        """
+        Extrae texto de una imagen (base64) usando OCR optimizado
+        con preprocesamiento y Tesseract en español + inglés.
+        """
+        txt = ""
+        # Si hay OpenCV, preprocesamos fuerte
+        if _CV_OK:
+            img = _decode_b64_to_cv2(b64)
+            if img is None:
+                return ""
+            h, w = img.shape[:2]
+
+            # Subir resolución si la imagen es pequeña
+            if max(h, w) < 1200:
+                scale = 1200 / max(h, w)
+                img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+
+            # Escala de grises + reducción de ruido
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            gray = cv2.fastNlMeansDenoising(gray, h=15)
+
+            # Aumentar contraste + binarización
+            gray = cv2.convertScaleAbs(gray, alpha=1.6, beta=8)
+            _, bw = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+
+            config = "--oem 3 --psm 6 -l spa+eng"
+            try:
+                txt = pytesseract.image_to_string(bw, config=config) or ""
+            except Exception as e:
+                print("[ERR] pytesseract:", e)
+                txt = ""
+        else:
+            # Fallback sin OpenCV: usar PIL directo
+            try:
+                img_data = base64.b64decode(b64)
+                pil = Image.open(BytesIO(img_data)).convert("L")
+                config = "--oem 3 --psm 6 -l spa+eng"
+                txt = pytesseract.image_to_string(pil, config=config) or ""
+            except Exception as e:
+                print("[ERR] pytesseract (PIL fallback):", e)
+                txt = ""
+
+        return txt.strip()
+
+    def analyze_violence(self, b64_img: str) -> dict:
+        """
+        Analiza una imagen y devuelve detección de violencia con OCR + reglas locales.
+        """
+        text = self.ocr_text(b64_img)
+
+        if not text:
+            return {
+                "detected": False,
+                "categories": [],
+                "severity": "desconocida",
+                "evidence": [],
+                "recommendations": [],
+            }
+
+        t = text.lower()
+
+        # Listas simples (podés expandirlas)
+        insultos = ["idiota", "inútil", "cerda", "mierda", "mentirosa", "estúpida", "fea", "callate"]
+        manipulacion = [
+            "sin mí no sos nada", "todo es tu culpa", "nadie te va a creer",
+            "me hacés enojar", "si me quisieras", "me obligás"
+        ]
+        amenazas = [
+            "vas a ver", "te voy a", "te voy a denunciar", "me las vas a pagar",
+            "no sabés con quién te metés"
+        ]
+
+        evid = []
+        for kw in insultos + manipulacion + amenazas:
+            if kw in t:
+                evid.append(kw)
+
+        score = 0
+        score += 1 * sum(k in t for k in insultos)
+        score += 2 * sum(k in t for k in manipulacion)
+        score += 3 * sum(k in t for k in amenazas)
+
+        if score >= 4:
+            sev = "alta"
+        elif score >= 2:
+            sev = "media"
+        elif score >= 1:
+            sev = "baja"
+        else:
+            sev = "desconocida"
+
+        cats = ["verbal"] if evid else []
+
+        recs = []
+        if sev in ("media", "alta"):
+            recs = [
+                "No respondas a las agresiones; guardá evidencia (capturas).",
+                "Bloqueá/silenciá a la persona agresora en la plataforma.",
+                "Contale a alguien de confianza y buscá apoyo."
+            ]
+
+        return {
+            "detected": bool(evid),
+            "categories": cats,
+            "severity": sev,
+            "evidence": evid,
+            "recommendations": recs
+        }
+
+# ------------------------------------------------------
+#  Frases empáticas
+# ------------------------------------------------------
 EMP_INTROS_DETECTED = [
     "Gracias por confiar en mí y compartir esta imagen. Siento que estés pasando por algo así.",
     "Lamento que estés lidiando con esto. No estás sola/solo: estoy para ayudarte.",
@@ -91,50 +303,58 @@ def _compose_empathetic_message(
     )
     return msg
 
-# --- Utils ---
+# ------------------------------------------------------
+#  Configuración del bot de Telegram
+# ------------------------------------------------------
+TELEGRAM_BOT_TOKEN = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+GROQ_API_KEY = clean_key(os.getenv("GROQ_API_KEY", ""))
+
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("Falta TELEGRAM_BOT_TOKEN en .env")
+if not GROQ_API_KEY:
+    raise ValueError("Falta GROQ_API_KEY en .env")
+
+telebot.logger.setLevel(logging.INFO)
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN, parse_mode="Markdown")
+vision = GroqVisionClient(GROQ_API_KEY, model="llama-3.2-90b-vision-preview")
+helpdir = HelpDirectory()
+user_country: dict[int, str] = {}
+user_mode: dict[int, bool] = {}  # modo_cuidado on/off
+
+# ------------------------------------------------------
+# Funciones auxiliares
+# ------------------------------------------------------
 def _download_file(file_id: str) -> bytes:
     info = bot.get_file(file_id)
     return bot.download_file(info.file_path)
-
-def _pick_severity(a: str, b: str) -> str:
-    order = {"baja": 1, "media": 2, "alta": 3, "desconocida": 0}
-    sa, sb = order.get((a or "desconocida").lower(), 0), order.get((b or "desconocida").lower(), 0)
-    return a if sa >= sb else b
 
 def _process_image_bytes(msg, img_bytes: bytes):
     try:
         img_bytes = downscale_if_needed(img_bytes)
         b64 = bytes_to_b64(img_bytes)
 
-        # 1) Intento con visión Groq (si falla, sigue)
+        # 1) Analizo con OCR + reglas (visión local)
         llm = vision.analyze_violence(b64) or {}
-        llm_error = bool(llm.get("error"))  # cuando hay 403 u otro error
+        llm_error = bool(llm.get("error"))  # hoy siempre será False, pero lo dejamos por compatibilidad
 
-        # 2) Siempre intento OCR + reglas (mejora recall)
-        ocr_text = vision.ocr_text(b64) or ""
-        rule = classify_text(ocr_text) if ocr_text else {
-            "detected": False, "categories": [], "severity": "desconocida", "evidence": [], "recommendations": []
-        }
+        detected = bool(llm.get("detected"))
+        cats = llm.get("categories") or []
+        severity = llm.get("severity", "desconocida")
+        evidencias = llm.get("evidence") or []
+        recomendaciones = llm.get("recommendations") or []
 
-        # 3) Fusiono resultados (preferimos más severo y unimos categorías/evidencias)
-        detected = bool(llm.get("detected") or rule.get("detected"))
-        cats = list(dict.fromkeys((llm.get("categories") or []) + (rule.get("categories") or [])))
-        severity = _pick_severity(llm.get("severity", "desconocida"), rule.get("severity", "desconocida"))
-        evidencias = list(dict.fromkeys((llm.get("evidence") or []) + (rule.get("evidence") or [])))
-        recomendaciones = list(dict.fromkeys((llm.get("recommendations") or []) + (rule.get("recommendations") or [])))
-
-        # 4) Recursos según 1ra categoría útil
+        # 2) Recursos según categoría
         country = user_country.get(msg.from_user.id, "AR")
         first_cat = (cats[0] if cats else "general")
         resources = helpdir.get(country, first_cat)
 
-        # 5) Modo cuidado: recortar vocabulario fuerte
+        # 3) Modo cuidado: recortar vocabulario fuerte
         if user_mode.get(msg.from_user.id, False) and evidencias:
             evidencias = [e for e in evidencias if len(e) <= 10]
             if "Hice un análisis simplificado por tu comodidad." not in recomendaciones:
                 recomendaciones = ["Hice un análisis simplificado por tu comodidad."] + recomendaciones
 
-        # 6) Mensaje empático
+        # 4) Mensaje empático
         llm_note = "análisis LLM no disponible (se usó OCR + reglas locales)." if llm_error else None
         text = _compose_empathetic_message(
             detected=detected,
@@ -147,8 +367,9 @@ def _process_image_bytes(msg, img_bytes: bytes):
             llm_note=llm_note
         )
 
-        # 7) Aviso de contenido sensible si el OCR vio insultos claros
-        if any(w in (ocr_text.lower()) for w in ["mierda", "cerda", "sirvienta", "idiota", "inútil", "gorda"]):
+        # 5) Aviso de contenido sensible si el OCR vio insultos claros
+        lower_evid = " ".join(evidencias).lower()
+        if any(w in lower_evid for w in ["mierda", "cerda", "sirvienta", "idiota", "inútil", "gorda"]):
             bot.send_message(msg.chat.id, "⚠️ Este contenido puede resultar sensible. Avisame si preferís que resuma sin mostrar frases textuales.")
 
         bot.reply_to(msg, text)
@@ -157,7 +378,9 @@ def _process_image_bytes(msg, img_bytes: bytes):
         print("[ERR] _process_image_bytes:", repr(e))
         bot.reply_to(msg, "❌ Ocurrió un error al procesar la imagen. Probá de nuevo.")
 
-# --- Comandos ---
+# ------------------------------------------------------
+# Handlers de comandos
+# ------------------------------------------------------
 @bot.message_handler(commands=["start"])
 def start(msg):
     bot.reply_to(
@@ -203,7 +426,9 @@ def toggle_mode(msg):
 def ping(msg):
     bot.reply_to(msg, "🏓 pong")
 
-# --- Imágenes ---
+# ------------------------------------------------------
+# Handlers de imágenes
+# ------------------------------------------------------
 @bot.message_handler(content_types=["photo"])
 def analyze_photo(msg):
     bot.reply_to(msg, "📸 Imagen recibida. Analizando… ⏳")
@@ -228,17 +453,14 @@ def analyze_document(msg):
         print("[ERR] analyze_document:", repr(e))
         bot.reply_to(msg, "❌ Error al procesar la imagen.")
 
-# --- Run ---
+# ------------------------------------------------------
+# Run
+# ------------------------------------------------------
 if __name__ == "__main__":
-    print("🤖 Bot de descripción de imágenes iniciado…")
+    print("🤖 Bot de análisis de imágenes iniciado…")
     print("📸 Esperando imágenes…")
     try:
         bot.delete_webhook(drop_pending_updates=True)
     except Exception as e:
         print("[DBG] delete_webhook:", repr(e))
     bot.infinity_polling(timeout=10, long_polling_timeout=10)
-
-# Agregado: mejora en el manejo de OCR y respuestas empáticas
-# Refactor: el código fue migrado a un enfoque orientado a objetos (OOP)
-# Esto permite una mejor organización, mantenimiento y escalabilidad del bot.
-# Incluye recursos locales (Línea 144, ONU Mujeres, 911) y consejos de autocuidado.
