@@ -150,7 +150,7 @@ Reemplazar ambos valores por los tokens reales.
 bash
 Copiar código
 python main.py
-Si la configuración es correcta, el bot quedará ejecutándose y escuchando imágenes y mensajes.
+Si la configuración es correcta, el bot quedará ejecutándose y escuchando mensajes e imágenes.
 
 10. Archivos necesarios
 bash
@@ -158,9 +158,9 @@ Copiar código
 main.py
 analyzers/vision.py
 requirements.txt
-.env        (local, no subir)
+.env          (local, no subir)
 11. Notas importantes
-El archivo .env no debe compartirse ni subirse al repositorio.
+El archivo .env no debe compartirse ni subirse.
 
 No se guardan imágenes ni datos privados.
 
@@ -169,4 +169,3 @@ El sistema no reemplaza ayuda profesional.
 Incluye fallback automático cuando Groq Vision no está disponible.
 
 Toda la información procesada se mantiene privada en el dispositivo local.
-
