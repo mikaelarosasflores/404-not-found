@@ -20,3 +20,5 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0
 Pillow==10.4.0
+transformers==4.57.1
+sentence-transformers==5.1.2

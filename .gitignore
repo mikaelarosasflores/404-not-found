@@ -1,1 +1,4 @@
 .env
+entorno-eva/
+__pycache__/
+*.pyc

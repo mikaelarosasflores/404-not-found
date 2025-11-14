@@ -17,17 +17,8 @@ class VoiceAnalyzer:
                     return
 
                 # 1) MANDA EL TEXTO A SENTIMENT ANALYZER
-                analysis = self.sentiment.analyze_text(text)
-                riesgo = analysis["nivel_riesgo"]
-                respuesta_sentiment = analysis["respuesta_recomendada"]
-
-                #SI HAY RIESGO:
-                if riesgo in ("leve", "moderado", "alto"):
-                    self.bot.reply_to(message, respuesta_sentiment)
-                    return
-                
-                #NO HAY RIESGO:
-                callback_main(message, text)
+                analysis = self.sentiment.analyze(text)
+                callback_main(message, text, analysis)
         
         def transcribe_voice(self, message):
             try:
@@ -47,7 +38,7 @@ class VoiceAnalyzer:
                         response_format="json",
                         language="es",
                         temperature=1
-                    )
+                    )   
 
                 # eliminar archivo temporal
                 os.remove(temp_file)
