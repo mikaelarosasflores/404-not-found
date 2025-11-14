@@ -277,13 +277,51 @@ def _compose_empathetic_message(
     intro = random.choice(EMP_INTROS_DETECTED if detected else EMP_INTROS_UNCLEAR)
     validation = random.choice(EMP_VALIDATIONS)
 
-    line_alert = ""
     sev_norm = (severity or "desconocida").lower()
-    if sev_norm in ("media", "alta"):
-        line_alert = "\n⚠️ *Si hay riesgo o te sentís en peligro*, buscá ayuda inmediata: **911** (emergencias) o **144** (violencias de género, AR)."
 
-    ev_text = "- " + ("\n- ".join(evidencias) if evidencias else "(sin evidencias)")
-    rec_text = "- " + ("\n- ".join(recomendaciones) if recomendaciones else "(sin recomendaciones)")
+    # Explicación del nivel de severidad
+    if sev_norm == "alta":
+        sev_expl = (
+            "Se detectan varias frases agresivas y/o amenazas, lo que sugiere un nivel de violencia significativo "
+            "y un posible impacto fuerte en lo emocional."
+        )
+    elif sev_norm == "media":
+        sev_expl = (
+            "Se identifican expresiones agresivas o manipuladoras que pueden afectar tu bienestar, "
+            "aunque no sean amenazas directas."
+        )
+    elif sev_norm == "baja":
+        sev_expl = (
+            "Se encontraron indicios de lenguaje hiriente o descalificador, pero con menor intensidad o frecuencia."
+        )
+    else:
+        sev_expl = (
+            "No se encontraron suficientes señales claras como para estimar con precisión el nivel de violencia."
+        )
+
+    # Resumen de evidencias / contador de frases agresivas
+    evid_count = len(evidencias)
+    if evid_count > 0:
+        ejemplos = ", ".join(f"“{e}”" for e in evidencias[:4])
+        evid_resumen = (
+            f"Se detectaron *{evid_count}* frases o expresiones potencialmente agresivas.\n"
+            f"Algunos ejemplos: {ejemplos}."
+        )
+    else:
+        evid_resumen = (
+            "No se identificaron frases explícitamente agresivas en el texto extraído; "
+            "aun así, si algo de lo que ves o sentís te incomoda, tu percepción es importante."
+        )
+
+    line_alert = ""
+    if sev_norm in ("media", "alta"):
+        line_alert = (
+            "\n⚠️ *Si hay riesgo o te sentís en peligro*, buscá ayuda inmediata: "
+            "**911** (emergencias) o **144** (violencias de género, AR)."
+        )
+
+    ev_text = "- " + ("\n- ".join(evidencias) if evidencias else "(sin evidencias listadas)")
+    rec_text = "- " + ("\n- ".join(recomendaciones) if recomendaciones else "(sin recomendaciones específicas)")
 
     nota_texto = f"_Nota: {llm_note}_\n\n" if llm_note else ""
 
@@ -293,7 +331,9 @@ def _compose_empathetic_message(
         f"*Violencia detectada:* {'Sí' if detected else 'No (no concluyente)'}\n"
         f"*Categorías:* {', '.join(cats) if cats else '(ninguna)'}\n"
         f"*Severidad:* {severity}\n"
-        f"*Evidencias:*\n{ev_text}\n\n"
+        f"_Motivo de esta severidad:_ {sev_expl}\n\n"
+        f"📌 *Resumen de frases detectadas:*\n{evid_resumen}\n\n"
+        f"*Evidencias (detalle):*\n{ev_text}\n\n"
         f"*Recomendaciones:*\n{rec_text}\n\n"
         f"📞 *Recursos de ayuda ({country}):*\n{recursos}"
         f"{line_alert}\n\n"
@@ -338,7 +378,8 @@ def _process_image_bytes(msg, img_bytes: bytes):
             w, h = 0, 0
 
         # si la imagen es muy chiquita, avisamos y salimos
-        if w and h and (w < 500 or h < 500):
+        if w and h and (w < 300 or h < 500):
+            print(f"[DBG] Tamaño imagen: {w}x{h}")
             bot.reply_to(
                 msg,
                 "🔎 La imagen que enviaste es muy pequeña y no se alcanzan a distinguir bien las letras.\n\n"
