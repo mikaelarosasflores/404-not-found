@@ -330,12 +330,45 @@ def _download_file(file_id: str) -> bytes:
 
 def _process_image_bytes(msg, img_bytes: bytes):
     try:
+        # ---------- 1) Chequear tamaño mínimo ----------
+        try:
+            pil_img = Image.open(BytesIO(img_bytes))
+            w, h = pil_img.size
+        except Exception:
+            w, h = 0, 0
+
+        # si la imagen es muy chiquita, avisamos y salimos
+        if w and h and (w < 500 or h < 500):
+            bot.reply_to(
+                msg,
+                "🔎 La imagen que enviaste es muy pequeña y no se alcanzan a distinguir bien las letras.\n\n"
+                "📌 *Recomendación:*\n"
+                "• Enviá una captura donde el texto ocupe buena parte de la pantalla.\n"
+                "• Idealmente que tenga al menos ~600×600 píxeles o más.\n"
+                "• Evitá fotos muy lejos, movidas o borrosas."
+            )
+            return
+
+        # ---------- 2) Redimensionar y pasar a base64 ----------
         img_bytes = downscale_if_needed(img_bytes)
         b64 = bytes_to_b64(img_bytes)
 
-        # 1) Analizo con OCR + reglas (visión local)
+        # ---------- 3) OCR rápido para ver si se leyó algo ----------
+        ocr_preview = vision.ocr_text(b64) or ""
+        if len(ocr_preview.strip()) < 15:  # muy poquito texto -> probablemente ilegible
+            bot.reply_to(
+                msg,
+                "😕 No pude leer claramente el texto de la imagen, parece poco nítida o borrosa.\n\n"
+                "📌 *Para que pueda ayudarte mejor:*\n"
+                "• Enviá una captura donde las letras se vean nítidas.\n"
+                "• Evitá hacerle foto a otra pantalla desde muy lejos.\n"
+                "• Si podés, hacé zoom al chat antes de sacar la captura."
+            )
+            return
+
+        # ---------- 4) Análisis normal de violencia ----------
         llm = vision.analyze_violence(b64) or {}
-        llm_error = bool(llm.get("error"))  # hoy siempre será False, pero lo dejamos por compatibilidad
+        llm_error = bool(llm.get("error"))  # hoy siempre False, pero se mantiene
 
         detected = bool(llm.get("detected"))
         cats = llm.get("categories") or []
@@ -343,18 +376,15 @@ def _process_image_bytes(msg, img_bytes: bytes):
         evidencias = llm.get("evidence") or []
         recomendaciones = llm.get("recommendations") or []
 
-        # 2) Recursos según categoría
         country = user_country.get(msg.from_user.id, "AR")
         first_cat = (cats[0] if cats else "general")
         resources = helpdir.get(country, first_cat)
 
-        # 3) Modo cuidado: recortar vocabulario fuerte
         if user_mode.get(msg.from_user.id, False) and evidencias:
             evidencias = [e for e in evidencias if len(e) <= 10]
             if "Hice un análisis simplificado por tu comodidad." not in recomendaciones:
                 recomendaciones = ["Hice un análisis simplificado por tu comodidad."] + recomendaciones
 
-        # 4) Mensaje empático
         llm_note = "análisis LLM no disponible (se usó OCR + reglas locales)." if llm_error else None
         text = _compose_empathetic_message(
             detected=detected,
@@ -367,10 +397,12 @@ def _process_image_bytes(msg, img_bytes: bytes):
             llm_note=llm_note
         )
 
-        # 5) Aviso de contenido sensible si el OCR vio insultos claros
         lower_evid = " ".join(evidencias).lower()
         if any(w in lower_evid for w in ["mierda", "cerda", "sirvienta", "idiota", "inútil", "gorda"]):
-            bot.send_message(msg.chat.id, "⚠️ Este contenido puede resultar sensible. Avisame si preferís que resuma sin mostrar frases textuales.")
+            bot.send_message(
+                msg.chat.id,
+                "⚠️ Este contenido puede resultar sensible. Avisame si preferís que resuma sin mostrar frases textuales."
+            )
 
         bot.reply_to(msg, text)
 
