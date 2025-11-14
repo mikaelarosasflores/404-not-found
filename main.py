@@ -355,7 +355,22 @@ def _process_image_bytes(msg, img_bytes: bytes):
 
         # ---------- 3) OCR rápido para ver si se leyó algo ----------
         ocr_preview = vision.ocr_text(b64) or ""
-        if len(ocr_preview.strip()) < 15:  # muy poquito texto -> probablemente ilegible
+        clean_text = ocr_preview.strip()
+
+        # Caso 1: no hay texto en absoluto
+        if not clean_text:
+            bot.reply_to(
+                msg,
+                "👀 No detecté texto en la imagen que enviaste.\n\n"
+                "Este bot está pensado para analizar *capturas de chats o textos escritos* para detectar posibles violencias.\n\n"
+                "📌 *Recomendación:*\n"
+                "• Enviá una captura donde se vea texto (por ejemplo, mensajes de chat, publicaciones o comentarios).\n"
+                "• Si es una foto sin texto, no voy a poder hacer análisis de violencia verbal."
+            )
+            return
+
+        # Caso 2: hay texto, pero muy poquito → probablemente borroso / ilegible
+        if len(clean_text) < 15:
             bot.reply_to(
                 msg,
                 "😕 No pude leer claramente el texto de la imagen, parece poco nítida o borrosa.\n\n"
