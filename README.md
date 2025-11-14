@@ -1,271 +1,449 @@
-# 🔍 Analisis de Sentimiento - Resumen Breve
----------------------------------------
+# 🤖 Bot de Apoyo Emocional con IA - Detección de Violencia
 
-Que desarrolle?
-Un sistema funcional de analisis centrado en la deteccion de patrones de violencia, probado y operativo a traves de mis modulos principales.
+> **Sistema de análisis en tiempo real con Transformers para detectar 7 categorías de violencia y 13 emociones**
 
-Mis Modulos Funcionales
-----------------------
+---
 
-bot_test.py
-- Sistema principal probado y funcionando
-- Chatbot operativo con analisis en tiempo real
-- Integracion completa con los analizadores
-- Funciona perfectamente
+## 📋 Tabla de Contenidos
 
-Analizadores (Sistema Especializado)
-- security_analyzer_poo.py - Sistema avanzado POO
-- 7 categorias de violencia detectables
-- 3 niveles de riesgo (Alto, Moderado, Leve)
-- Respuestas contextuales automaticas
-- sentiment_analyzer.py - Analisis emocional base
+- [¿Qué desarrollé?](#-qué-desarrollé)
+- [Instalación Paso a Paso](#-instalación-paso-a-paso)
+- [Configuración de Tokens](#-configuración-de-tokens)
+- [Cómo Usar el Bot](#-cómo-usar-el-bot)
+- [Ejemplos Probados](#-ejemplos-probados)
+- [Detección de Violencia y Emociones](#-detección-de-violencia-y-emociones)
+- [Solución de Problemas](#-solución-de-problemas)
 
-Resultado Comprobado
--------------------
-Desarrolle y probe exitosamente un sistema de analisis que detecta patrones de violencia en tiempo real, integrado en un chatbot completamente funcional.
+---
 
-Doble Sistema de Analisis
-------------------------
-1. Analisis de Seguridad: Detecta patrones de violencia en mensajes
-2. Analisis de Sentimiento: Identifica el estado emocional de la persona para dar apoyo personalizado
+## 🎯 ¿Qué desarrollé?
 
-INSTALACION PASO A PASO
-=======================
+Un **sistema funcional de análisis** centrado en la detección de patrones de violencia con **Inteligencia Artificial**, probado y operativo.
 
-Paso 1: Descargar Python
-------------------------
-- Si no tienes Python, descargalo de python.org
-- Version 3.8 o superior
-- Durante instalacion, marcar "Add Python to PATH"
+### Módulos Funcionales
 
-Paso 2: Preparar los archivos
------------------------------
-- Descargar todos los archivos del proyecto
-- Ponerlos en una carpeta llamada "security-chatbot"
-- Abrir terminal o command prompt en esa carpeta
+#### 📁 **bot_test.py** - Sistema Principal
+- ✅ Chatbot operativo con análisis en tiempo real
+- ✅ Integración completa con analizadores de IA
+- ✅ Detección automática de patrones y emociones
+- ✅ **Funciona perfectamente**
 
-Paso 3: Crear entorno virtual
------------------------------
-En la terminal, ejecutar:
+#### 📁 **analyzers/sentiment_analyzer.py** - Analizador con IA
+- 🤖 **Integración completa con Transformers**
+- 📊 Modelos de IA para español:
+  - `pysentimiento/robertuito-sentiment-analysis`
+  - `finiteautomata/beto-emotion-analysis`
+- 🔍 **7 categorías de violencia detectables**
+- 💭 **13 emociones identificables**
+- 📈 **3 niveles de riesgo** (Alto, Moderado, Leve)
 
-Windows:
+#### 📁 **analyzers/security_analyzer_poo.py** - Sistema POO Avanzado
+- 🛡️ Sistema orientado a objetos
+- 🔍 Detección especializada de patrones
+- 📊 Análisis de riesgo multicapa
+- 💬 Respuestas contextuales automáticas
+
+### Resultado Comprobado
+
+✅ **Sistema híbrido IA + Reglas** que detecta violencia en tiempo real  
+✅ **Análisis emocional avanzado** con modelos Transformers  
+✅ **Integrado en chatbot** de Telegram funcional  
+✅ **280+ patrones específicos** de detección
+
+---
+
+## ⭐ Características Principales
+
+### 🎭 Doble Sistema de Análisis
+
+#### 1. Análisis de Seguridad con IA
+- Detecta **7 tipos de violencia** en mensajes
+- Usa **Transformers** para análisis contextual
+- **Scoring inteligente** de patrones
+- Combina IA + reglas para mayor precisión
+
+#### 2. Análisis de Sentimiento con IA
+- Identifica **13 emociones** en español
+- Modelos especializados (RoBERTuito, BETO)
+- Cálculo de **intensidad emocional**
+- Apoyo personalizado según estado emocional
+
+---
+
+## 🚀 Instalación Paso a Paso
+
+### Paso 1: Descargar Python
+
+1. Descargar de [python.org](https://www.python.org/downloads/)
+2. **Versión:** 3.8 o superior (recomendado: 3.10)
+3. ⚠️ **Marcar "Add Python to PATH"** durante instalación
+
+### Paso 2: Preparar archivos
+
+```bash
+# Clonar o descargar el proyecto
+git clone 
+
+### Paso 3: Crear entorno virtual
+
+**Windows:**
+```bash
 python -m venv chatbot_env
 chatbot_env\Scripts\activate
+```
 
-Mac/Linux:
+**Mac/Linux:**
+```bash
 python3 -m venv chatbot_env
 source chatbot_env/bin/activate
+```
 
-Deberias ver (chatbot_env) al inicio de la linea de comandos.
+✅ Verás `(chatbot_env)` al inicio
 
-Paso 4: Instalar dependencias EXACTAS
--------------------------------------
-Con el entorno virtual activado, ejecutar:
+### Paso 4: Instalar dependencias
 
-pip install pyTelegramBotAPI==4.15.2
-pip install groq==0.9.0
-pip install python-dotenv==1.0.0
+```bash
+# Actualizar pip
+pip install --upgrade pip
 
-Esperar a que termine cada instalacion.
+# Instalar todo
+pip install -r requirements.txt
+```
 
-Paso 5: Configurar tokens - IMPORTANTE
---------------------------------------
-1. Crear archivo .env en la misma carpeta
-2. Abrir el archivo .env con bloc de notas o Visual Studio Code
-3. Pegar este contenido:
+⚠️ **Primera ejecución:** Descargará modelos de IA (~500MB). Solo ocurre una vez.
 
-TELEGRAM_TOKEN=tu_token_de_telegram_aqui
-GROQ_API_KEY=tu_api_key_de_groq_aqui
+---
 
-4. REEMPLAZAR "tu_token_de_telegram_aqui" con tu token real de Telegram
-5. REEMPLAZAR "tu_api_key_de_groq_aqui" con tu API Key real de Groq
-6. Guardar el archivo
+## 🔑 Configuración de Tokens
 
-Como conseguir los tokens:
-- Token Telegram: Buscar @BotFather en Telegram, crear bot con /newbot
-- API Key Groq: Registrarse en groq.com, ir a API Keys
+### 1. Crear archivo .env
 
-Paso 6: Ejecutar el bot
------------------------
-En la terminal, con entorno virtual activado:
+En la carpeta principal, crear archivo `.env`
 
+### 2. Agregar token
+
+```env
+TELEGRAM_TOKEN=tu_token_aqui
+```
+
+### 3. Conseguir token de Telegram
+
+1. Buscar `@BotFather` en Telegram
+2. Enviar `/newbot`
+3. Seguir instrucciones
+4. Copiar token y pegar en `.env`
+
+**Ejemplo:**
+```env
+TELEGRAM_TOKEN=7123456789:AAHdqTcvbXYZ1234567890abcdefGHIJKLM
+```
+
+---
+
+## 📱 Cómo Usar el Bot
+
+### Iniciar el Bot
+
+```bash
 python bot_test.py
+```
 
-Si todo esta bien, deberias ver:
-- Groq inicializado - Analisis REAL de sentimiento
-- Asistente de Seguridad y Apoyo Emocional Iniciado
-- Escuchando mensajes...
+**Salida esperada:**
+```
+🔄 Inicializando SecurityAnalyzer...
+🤖 Cargando modelos de IA...
+Device set to use cpu
+✅ Modelo de emociones cargado
+✅ Modelos de IA cargados exitosamente
+✅ Bot listo - Detección completa de 7 categorías
+```
 
-COMO USAR EL BOT
-================
+### Comandos
 
-Frases para iniciar:
-hola
-hi
-hello
+#### Iniciar:
+```
 /start
+/help
+hola
+```
 
-Para analizar mensajes (OBLIGATORIO usar "analiza:"):
+#### Analizar (usar "analiza:"):
+```
 analiza: mi novio me controla el celular
-analiza: me amenazan con publicar fotos
-analiza: no me dejan salir de casa
-analiza: me insultan y humillan
-analiza: me piden mis contraseñas
-analiza: te quiero matar
+analiza: me amenaza con publicar fotos
+analiza: me insultan constantemente
+analiza: me pega y tengo moretones
+```
 
-Para expresar emociones (el bot analiza tu estado de animo):
+#### Expresar emociones:
+```
 me siento triste
-me siento asustada
-me siento enojada
-me siento confundida
-estoy preocupada
-tengo miedo
-tengo ansiedad
-me siento sola
-estoy desesperada
-tengo culpa
+tengo mucho miedo
+estoy muy enojada
+me siento agobiada
+```
 
-Para cerrar la conversacion:
-no
+#### Cerrar:
+```
 no gracias
 adiós
-chao
-bye
 gracias
-listo
-ya está
+```
 
-EJEMPLOS QUE FUNCIONAN - PROBADOS
-=================================
+---
 
-Ejemplo 1: Analisis de violencia digital
-Usuario: analiza: mi ex quiere mis contraseñas de Instagram
-Bot: Detecta VIOLENCIA DIGITAL - Riesgo ALTO
+## ✅ Ejemplos Probados
 
-Ejemplo 2: Analisis de control
-Usuario: analiza: mi pareja no me deja ver a mis amigos
-Bot: Detecta CONTROL Y AISLAMIENTO - Riesgo MODERADO
+### Ejemplo 1: Violencia Digital
+```
+👤 Usuario: analiza: mi ex quiere mis contraseñas de Instagram
 
-Ejemplo 3: Analisis de amenazas
-Usuario: analiza: me amenaza con venir a mi casa
-Bot: Detecta AMENAZAS Y ACOSO - Riesgo MODERADO
+🤖 Bot:
+🟡 RIESGO MODERADO
+📱 Violencia Digital
+🚫 Control y Aislamiento
 
-Ejemplo 4: Analisis de amenazas graves
-Usuario: analiza: te quiero matar
-Bot: Detecta AMENAZAS Y ACOSO - Riesgo MODERADO
+⚠️ Estos patrones pueden escalar
+🔒 Cambia tus contraseñas inmediatamente
+📞 144 - Asesoramiento
+```
 
-Ejemplo 5: Expresar emociones - ANALISIS DE SENTIMIENTO
-Usuario: me siento triste y asustada
-Bot: Detecta TRISTEZA y MIEDO - Ofrece consejos especificos para esas emociones
+### Ejemplo 2: Violencia Física
+```
+👤 Usuario: analiza: me pegó y tengo moretones
 
-Ejemplo 6: Cerrar conversacion
-Usuario: no, gracias
-Bot: Se despide adecuadamente
+🤖 Bot:
+🔴 RIESGO ALTO
+⚠️ VIOLENCIA FÍSICA DETECTADA
 
-QUE HACE EL BOT - DOBLE SISTEMA
-==============================
+🚨 NECESITAS AYUDA INMEDIATA
+📞 911 - Emergencias
+🏥 Ve a urgencias
+📸 Documenta lesiones
+```
 
-Sistema 1: Analisis de Seguridad
-- Analiza mensajes en busca de 7 tipos de violencia
-- Evalua nivel de riesgo (Alto, Moderado, Leve)
-- Ofrece recursos de ayuda especificos
-- Recomendaciones personalizadas segun el tipo de violencia detectada
+### Ejemplo 3: Análisis Emocional
+```
+👤 Usuario: me siento muy triste y asustada
 
-Sistema 2: Analisis de Sentimiento
-- Detecta emociones del usuario (tristeza, miedo, enojo, etc.)
-- Analiza el estado emocional de la persona
-- Ofrece consejos personalizados segun la emocion detectada
-- Proporciona apoyo emocional contextual
-- Mantiene conversacion natural preguntando "¿Como te sientes?"
+🤖 Bot con IA:
+💭 Emociones: Tristeza, Miedo
+📊 Intensidad: Alta (0.85/1.00)
 
-TIPOS DE VIOLENCIA QUE DETECTA
-=============================
+💙 Veo que estás triste...
+🛡️ Y también tienes miedo...
 
-1. Violencia Psicologica - insultos, humillaciones, gaslighting
-2. Violencia Fisica - golpes, agresiones, uso de armas
-3. Violencia Digital - control de redes, contraseñas, stalkeo
-4. Control y Aislamiento - prohibir salidas, amistades, movimientos
-5. Manipulacion Emocional - chantaje, culpas, amenazas de suicidio
-6. Amenazas y Acoso - persecucion, intimidacion, hostigamiento
-7. Violencia Economica - control de dinero, sueldo, recursos
+Consejos personalizados + apoyo
+📞 144 - Apoyo emocional 24/7
+```
 
-EMOCIONES QUE DETECTA
-====================
+### Ejemplo 4: Emergencia
+```
+👤 Usuario: quiero morirme
 
-- Tristeza
-- Miedo
-- Enojo
-- Confusion
-- Frustracion
-- Ansiedad
-- Culpa
+🤖 Bot:
+🚨🚨 EMERGENCIA - AYUDA INMEDIATA 🚨🚨
+📞 LLAMA AHORA:
+• 911 - Emergencias
+• 144 - Crisis 24/7
+• Línea de la Vida: 800 911 2000
+💖 Tu vida es valiosa
+```
 
-LINEAS DE AYUDA INCLUIDAS
-========================
+---
 
-- Linea 144 - Violencia 24/7
-- Linea 102 - Ninos y adolescentes
-- Linea 137 - Violencia familiar y sexual
-- Linea 141 - Salud mental
-- 911 - Emergencias
+## 🔍 Detección de Violencia y Emociones
 
-SOLUCION DE PROBLEMAS - CONFIGURACION
-====================================
+### 7 Categorías de Violencia
 
-Si sale error "Module not found":
-- Verificar que el entorno virtual esta activado (debe verse (chatbot_env))
-- Revisar que se instalaron las 3 dependencias exactas
-- Ejecutar nuevamente: pip install pyTelegramBotAPI==4.15.2 groq==0.9.0 python-dotenv==1.0.0
+| Categoría | Palabras Clave | Nivel |
+|-----------|---------------|-------|
+| 🔴 **Violencia Física** | golpes, pegar, moretones, lastimar | ALTO |
+| 😔 **Violencia Psicológica** | insultos, gritar, humillar, gaslighting | ALTO |
+| 🚫 **Control y Aislamiento** | celos, revisar celular, prohibir | MODERADO |
+| ⚠️ **Amenazas y Acoso** | amenazar, perseguir, acosar | ALTO |
+| 🔞 **Violencia Sexual** | forzar, obligar, presionar | ALTO |
+| 📱 **Violencia Digital** | hackear, contraseñas, stalkear | MODERADO |
+| 💔 **Manipulación Emocional** | chantaje, culpa, sin mí no eres nada | MODERADO |
+| 💰 **Violencia Económica** | controlar dinero, no me deja trabajar | MODERADO |
 
-Si sale error de tokens:
-- Verificar que el archivo .env esta en la carpeta correcta
-- Confirmar que los tokens son validos y estan activos
-- El archivo .env debe tener EXACTAMENTE 2 lineas con tus tokens reales
+### 13 Emociones Detectables
 
-Si el bot no responde:
-- Verificar que se ejecuto python bot_test.py
-- Confirmar que aparece "Escuchando mensajes..."
-- Revisar que el token de Telegram es correcto
+| Emoción | Respuesta del Bot |
+|---------|-------------------|
+| 😢 Tristeza | Consejos + apoyo emocional |
+| 🔥 Enojo | Técnicas de respiración |
+| 😨 Miedo | Evaluación de seguridad |
+| 😰 Agobio | Manejo del estrés |
+| 😕 Confusión | Clarificación + decisiones |
+| 😔 Impotencia | Empoderamiento |
+| 😊 Felicidad | Refuerzo positivo |
+| 🤔 Soledad | Redes de apoyo |
+| 💭 Culpa | Auto-perdón |
+| 😳 Vergüenza | Normalización |
+| 😰 Ansiedad | Relajación |
+| 💢 Frustración | Ajuste expectativas |
+| 🌟 Esperanza | Establecer metas |
 
-Si no detecta patrones:
-- Asegurarse de usar "analiza:" antes del mensaje
-- Verificar que el mensaje contiene palabras clave de violencia
-- Probar con ejemplos que funcionan: "analiza: te quiero matar"
+---
 
-Si hay problemas con el entorno virtual en Windows:
-- Usar Command Prompt (CMD) en lugar de PowerShell
-- Ejecutar: chatbot_env\Scripts\activate.bat
+## 📞 Líneas de Ayuda
 
-ARCHIVOS NECESARIOS
-==================
+### 🚨 Emergencias
+- **911** - Emergencias
+- **144** - Violencia 24/7
+- **Línea de la Vida** - 800 911 2000
+- **SAPTEL** - 55 5259 8121
 
-- bot_test.py (archivo principal del chatbot)
-- requirements.txt (dependencias necesarias)
-- .env (tokens - NO SUBIR A INTERNET)
-- sentiment_analyzer.py (analizador base de sentimientos)
-- security_analyzer_poo.py (analizador avanzado de seguridad)
+### 📞 Orientación
+- **141** - Orientación mujeres
+- **137** - Víctimas violencia
+- **089** - Denuncia anónima
 
-NOTAS IMPORTANTES DE CONFIGURACION
-==================================
+---
 
-- Nunca compartas tu archivo .env - contiene informacion sensible
-- El bot es confidencial pero no reemplaza ayuda profesional
-- Funciona para cualquier genero - lenguaje inclusivo
-- Esta probado y funcionando correctamente
-- Tiene doble sistema: seguridad + analisis emocional
-- Los tokens deben ser REALES, no los textos de ejemplo
-- El archivo .env debe crearse manualmente y guardarse correctamente
+## 🛠️ Solución de Problemas
 
-PROBLEMAS COMUNES RESUELTOS
-==========================
+### ❌ Error: "Module not found"
 
-Problema: "Bot token is not defined"
-Solucion: El archivo .env no existe o esta vacio. Crearlo manualmente con los tokens reales.
+```bash
+# Verificar entorno activo (debe verse (chatbot_env))
+# Reinstalar
+pip install -r requirements.txt
+```
 
-Problema: "Groq no disponible"
-Solucion: La API Key de Groq no es valida o el archivo .env no se lee correctamente.
+---
 
-Problema: No detecta patrones de violencia
-Solucion: Usar exactamente "analiza:" antes del mensaje. Probar con ejemplos que funcionan.
+### ❌ Error: "Bot token is not defined"
 
-By Frida
+**Solución:**
+1. Crear archivo `.env` en carpeta raíz
+2. Agregar: `TELEGRAM_TOKEN=tu_token_real`
+3. Guardar sin espacios extras
+
+---
+
+### ❌ Modelos de IA no cargan
+
+**Mensaje:**
+```
+⚠️ No se pudieron cargar los modelos de IA
+⚠️ Se usará análisis basado en reglas
+```
+
+**Solución:**
+```bash
+pip install transformers==4.35.0 torch==2.1.0
+```
+
+**Nota:** Primera ejecución descarga modelos (~500MB)
+
+---
+
+### ❌ Bot no responde
+
+**Verificar:**
+1. ✅ Bot corriendo: `python bot_test.py`
+2. ✅ Mensaje "Escuchando mensajes..."
+3. ✅ Token correcto en `.env`
+4. ✅ Bot activo en @BotFather
+
+---
+
+### ⚠️ Advertencias TensorFlow (NORMAL)
+
+Estos mensajes son normales:
+```
+WARNING:tensorflow:...
+I tensorflow/core/util/port.cc:113...
+```
+
+Para desactivarlos, agregar en `.env`:
+```env
+TF_ENABLE_ONEDNN_OPTS=0
+```
+
+---
+
+### 🐧 Windows: Error PowerShell
+
+Usar **Command Prompt (CMD)**:
+```bash
+chatbot_env\Scripts\activate.bat
+python bot_test.py
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+bot-apoyo-emocional/
+│
+├── bot_test.py                 # Bot principal
+│
+├── analyzers/
+│   ├── sentiment_analyzer.py  # Analizador IA (Transformers)
+│   └── security_analyzer_poo.py # Sistema POO avanzado
+│
+├── requirements.txt            # Dependencias
+├── .env                        # Tokens (NO SUBIR)
+├── .gitignore                 
+│
+├── README.md                   # Esta documentación
+└── chatbot_env/               # Entorno virtual (NO SUBIR)
+```
+
+---
+
+## 📦 requirements.txt
+
+```txt
+# Bot de Telegram
+pyTelegramBotAPI==4.15.2
+python-dotenv==1.0.0
+
+# Transformers y modelos de IA
+transformers==4.35.0
+torch==2.1.0
+tensorflow==2.15.0
+sentencepiece==0.1.99
+
+# Utilidades
+numpy==1.24.3
+scipy==1.11.3
+```
+
+---
+
+## 🔒 Seguridad
+
+⚠️ **IMPORTANTE:**
+- ❌ **NUNCA** compartas `.env`
+- ❌ **NO** subas `.env` a GitHub
+- ✅ Agrega `.env` a `.gitignore`
+- ✅ Análisis local, no guarda conversaciones
+
+El bot es confidencial pero **NO reemplaza ayuda profesional**.
+
+---
+
+## 📝 Notas Importantes
+
+1. **Primera ejecución:** Descarga modelos (~500MB, solo una vez)
+2. **Sin IA:** Funciona con análisis basado en reglas
+3. **Privacidad:** Todo local, no almacena conversaciones
+4. **Profesional:** NO reemplaza ayuda psicológica
+5. **Actualizado:** Líneas de ayuda México 2024
+
+---
+
+## 🌟 Agradecimientos
+
+Gracias a todas las personas que luchan contra la violencia. Este proyecto es un granito de arena en esa lucha.
+
+**¡Tu seguridad y bienestar importan!** 💜
+
+---
+
+**By Frida** 🌸
