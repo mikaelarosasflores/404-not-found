@@ -1,256 +1,221 @@
-🟣 EVA_BOT – Módulo de Visión (OCR + Análisis de Violencia)
+# 🟣 EVA_BOT – Módulo de Visión (OCR + Análisis de Violencia)
 
-Autora: Gabriela Galarza
-Proyecto: Detección de violencia digital mediante análisis de imágenes
-Integración: Groq Vision · Tesseract · OpenCV · PyTelegramBotAPI
+🔍 Sistema inteligente para detectar violencia digital en capturas de pantalla  
+📱 WhatsApp · Instagram · Chat Apps · Redes Sociales  
+💜 Hecho por: **Gabriela Galarza**
 
-📑 Índice
+---
 
-¿Qué es EVA_BOT?
+## 📘 Descripción General
 
-Módulos y funcionalidades
+EVA_BOT analiza imágenes para identificar **violencia digital**, como:
 
-2.1. analyzers/vision.py
+- insultos  
+- manipulación emocional  
+- agresiones verbales  
+- lenguaje hiriente o descalificador  
 
-2.2. main.py
+Combina IA, visión artificial y análisis contextual para ofrecer un resultado empático, seguro y útil para la persona usuaria.
 
-Tabla comparativa de severidades
+---
 
-Respuestas empáticas automáticas
+# 📑 Tabla de Contenidos
 
-Ejemplos reales del funcionamiento
+- 👉 [¿Qué desarrollé?](#qué-desarrollé)
+- 👉 [Módulos y Funcionalidades](#módulos-y-funcionalidades)
+  - 📌 [analyzers/vision.py](#21-analyzersvisionpy)
+  - 📌 [main.py](#22-mainpy)
+- 👉 [Tabla Comparativa de Severidades](#tabla-comparativa-de-severidades)
+- 👉 [Respuestas Empáticas Automáticas](#respuestas-empáticas-automáticas)
+- 👉 [Ejemplos Reales del Funcionamiento](#ejemplos-reales-del-funcionamiento)
+- 👉 [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- 👉 [Instalación](#instalación)
+- 👉 [Archivo .env](#archivo-env)
+- 👉 [Ejecución](#ejecución)
+- 👉 [Estructura del Proyecto](#estructura-del-proyecto)
+- 👉 [Notas Importantes](#notas-importantes)
+- 👉 [Autora](#autora)
 
-Tecnologías utilizadas
+---
 
-Instalación
+# 🎯 ¿Qué desarrollé?
 
-Archivo .env
+Diseñé un **módulo completo de análisis de imágenes** para detectar violencia digital presente en chats o publicaciones.  
 
-Ejecución
+🎛️ El sistema combina:
 
-Estructura del proyecto
+- 🧠 Modelos de visión IA (Groq Vision)  
+- 📝 OCR local (Tesseract + OpenCV) como respaldo  
+- 🚦 Clasificación de severidad (baja, media, alta)  
+- 🧹 Limpieza y normalización avanzada del texto  
+- ✨ Preprocesamiento profesional de imágenes  
+- 🤖 Integración total con Telegram Bot  
+- 🔄 Modo fallback automático si falla la API externa  
+- 🛟 Respuestas empáticas y guía de ayuda para la persona usuaria  
 
-Notas importantes
+---
 
-Autora
+# 🧩 Módulos y Funcionalidades
 
-## ¿Qué es EVA_BOT?
+## 2.1. **analyzers/vision.py**
 
-EVA_BOT es un módulo inteligente diseñado para detectar violencia digital en capturas de pantalla mediante:
+Incluye funcionalidades de análisis visual:
 
-Visión artificial
+### 🔍 OCR + Visión Híbrida
+- Extracción de texto en **spa+eng**  
+- Aumento de contraste  
+- Reducción de ruido  
+- Binarización automática  
+- Reescalado si la imagen es pequeña  
 
-OCR optimizado
+### ⚠ Detección de violencia verbal
+- insultos → severidad baja  
+- manipulación → severidad media  
+- amenazas → severidad alta  
 
-Análisis lingüístico
+### 🎚 Clasificador de gravedad
+Basado en cantidad, tipo e intensidad del texto detectado.
 
-Mensajes empáticos y recursos de ayuda
+### 🛡 Modo seguro / fallback
+Si Groq Vision falla → OCR local + reglas contextuales.
 
-Funciona procesando imágenes enviadas por los usuarios a través de un bot de Telegram, extrae texto, evalúa agresiones verbales y devuelve un análisis acompañado de recomendaciones.
+---
 
-El módulo incluye:
+## 2.2. **main.py**
 
-Groq Vision (si disponible)
+Controla:
 
-OCR local (Tesseract + OpenCV)
+✔ Recepción de imágenes  
+✔ Ejecución del análisis  
+✔ Respuestas empáticas  
+✔ Recursos de ayuda  
+✔ Comandos del bot  
+✔ Modo cuidado  
 
-Sistema de reglas de severidad
+### 🧵 Comandos disponibles
 
-Clasificación automática
+| Comando | Función |
+|--------|---------|
+| `/start` | Bienvenida |
+| `/help` | Guía de uso |
+| `/setcountry AR` | Cambiar país |
+| `/modo_cuidado on/off` | Minimizar insultos |
+| `/ping` | Prueba de vida |
 
-Respuestas empáticas
+---
 
-Recursos según país
+# 🧨 Tabla Comparativa de Severidades
 
-## 2. Módulos y funcionalidades
-### 2.1 analyzers/vision.py — Módulo de visión + OCR
+| Severidad | Descripción | Recomendación |
+|----------|-------------|---------------|
+| 🟢 **Baja** | Insultos aislados | Guardar evidencia |
+| 🟡 **Media** | Manipulación emocional | No responder + bloquear |
+| 🔴 **Alta** | Amenazas o daño directo | 144 / 911 |
 
-Este archivo contiene el núcleo del análisis visual.
+---
 
-✔ Funciones principales
+# 💬 Respuestas Empáticas Automáticas
 
-OCR con Tesseract (español + inglés)
+El bot acompaña emocionalmente al usuario:
 
-Preprocesamiento avanzado con OpenCV
+- “Lamento que estés pasando por esto. No estás sola/solo.”  
+- “Pedir ayuda es un acto de fortaleza.”  
+- “No guardo tus imágenes, tu privacidad es prioridad.”  
+- “Si querés, puedo ayudarte a pensar próximos pasos.”  
 
-aumento de contraste
+Incluye recursos por país (Argentina por defecto).
 
-reducción de ruido
+---
 
-escala adaptativa
+# 📸 Ejemplos Reales del Funcionamiento
 
-binarización Otsu
-
-Tokenización y normalización del texto
-
-Clasificación de agresiones verbales según listas:
-
-insultos
-
-manipulación
-
-amenazas
-
-Cálculo automático de severidad
-
-Fallback automático:
-Groq Vision → OCR local si hay error 401/403/timeout
-
-✔ Configuración OCR
---oem 3 --psm 6 -l spa+eng
-
-### 2.2 main.py — Integración con Telegram
-
-El bot permite:
-
-✔ Recibir imágenes
-
-Cuando el usuario envía una foto:
-
-Se analiza su resolución
-
-Se extrae el texto
-
-Se clasifica la severidad
-
-Se genera un mensaje empático
-
-Se brindan recursos locales (144, 911, etc.)
-
-✔ Comandos disponibles
-
-/start – Mensaje de bienvenida
-
-/help – Guía de uso
-
-/setcountry AR – Cambia país para mostrar recursos locales
-
-/modo_cuidado on/off – Filtra lenguaje fuerte
-
-/ping – Verifica conexión
-
-## Tabla comparativa de severidades
-Nivel	Criterios	Ejemplos detectados	Acción del bot
-Baja	1 insulto aislado	“idiota”, “mierda”	Recomenda no responder y guardar evidencia
-Media	manipulación emocional, 2–3 agresiones	“Todo es tu culpa”	Muestra recursos + alerta
-Alta	amenazas directas	“Te voy a…”	Alerta + recursos urgentes (911)
-Desconocida	texto vacío o inentendible	imágenes borrosas	Pide una foto mejor
-## Respuestas empáticas automáticas
-
-El bot integra un sistema emocional para acompañar al usuario:
-
-Ejemplos:
-
-“Lamento que estés pasando por esto. No es tu culpa.”
-
-“Gracias por confiar en mí para compartir esta imagen.”
-
-“Podés borrar este chat cuando quieras; no guardo nada.”
-
-“Si querés, puedo ayudarte a decidir próximos pasos.”
-
-## Ejemplos reales del funcionamiento
-✔ Ejemplo 1 — Detecta insultos
-
-Entrada: Captura con “gorda cerda”
-Salida:
+## ✔ Caso 1 — Violencia verbal detectada
 
 Violencia detectada: Sí
-Categorías: verbal
-Severidad: media
-Evidencias: ['cerda', 'gorda']
-Recomendaciones:
-- No respondas
-- Guardá evidencia
-- Bloqueá a la persona
+Categoría: Verbal
+Severidad: Media
+Evidencias: "cerda", "mierda"
+Recomendación: Bloquear + guardar evidencia
 
-✔ Ejemplo 2 — Nada ofensivo
+shell
+Copiar código
 
-Entrada: Conversación normal
-Salida:
+## ✔ Caso 2 — Imagen borrosa o muy pequeña
 
-Violencia detectada: No
-Evidencias: (sin evidencias)
-Recomendaciones: Estoy disponible si querés hablar o enviar otra imagen.
+La imagen que enviaste es muy pequeña o borrosa.
+Por favor enviá una captura donde el texto ocupe más espacio.
 
-✔ Ejemplo 3 — API Groq no disponible
+graphql
+Copiar código
 
-Salida:
+## ✔ Caso 3 — Fallback por API no disponible
 
-Nota: análisis LLM no disponible (usando OCR local).
+Análisis realizado con OCR local (sin modelo LLM).
 
-✔ Ejemplo 4 — Imagen borrosa
+yaml
+Copiar código
 
-El bot responde:
+---
 
-La imagen es muy pequeña o borrosa y no se alcanzan a distinguir bien las letras.
+# 🛠 Tecnologías Utilizadas
 
-Recomendación:
-- Enviá una captura donde el texto ocupe buena parte de la pantalla.
-- Resolución ideal: 600×600 px o más.
+| Herramienta | Uso |
+|-------------|-----|
+| Python | Lenguaje base |
+| Groq Vision API | Modelos de visión |
+| Tesseract OCR | OCR local |
+| OpenCV | Preprocesamiento |
+| Pillow | Imágenes |
+| PyTelegramBotAPI | Bot de Telegram |
+| python-dotenv | Variables de entorno |
 
-## Tecnologías utilizadas
-Herramienta	Rol
-Python	Lenguaje principal
-PyTelegramBotAPI	Integración con Telegram
-Groq Vision API	Análisis de imagen
-Tesseract OCR	Lectura de texto local
-OpenCV + NumPy	Preprocesamiento
-Pillow	Manipulación de imágenes
-dotenv	Variables de entorno
-## Instalación
-1. Crear entorno virtual
+---
+
+# ⚙ Instalación
+
+### 1️⃣ Crear entorno virtual
+
+```bash
 python -m venv .venv
 source .venv/Scripts/activate
-
-2. Instalar dependencias
+2️⃣ Instalar dependencias
+bash
+Copiar código
 pip install -r requirements.txt
-
-## Archivo .env
-
-El archivo NO debe subirse al repositorio.
-
-Formato:
-
+🔐 Archivo .env
+ini
+Copiar código
 TELEGRAM_BOT_TOKEN=tu_token
 GROQ_API_KEY=tu_api_key
+⚠ Nunca subirlo al repositorio.
 
-## Ejecución
+▶ Ejecución
+bash
+Copiar código
 python main.py
-
-
-Si está correcto, verás:
-
-🤖 Bot iniciado…
-📸 Esperando imágenes…
-
-## Estructura del proyecto
-/404-not-found
+🗂 Estructura del Proyecto
+bash
+Copiar código
+404-not-found/
 │── analyzers/
-│     └── vision.py
-│── bot/
+│   └── vision.py
 │── core/
 │── utils/
-│── data/
-│── .gitignore
+│── bot/
 │── main.py
 │── README.md
 │── requirements.txt
+│── .env  (local)
+⚠ Notas Importantes
+❌ No guarda imágenes ni datos privados.
 
-## Notas importantes
+🔒 Toda la información queda en la sesión del usuario.
 
-No se guardan las imágenes procesadas.
+🔄 Si la API externa falla → fallback local automático.
 
-.env nunca debe subirse.
-
-El bot no reemplaza atención profesional.
-
-Usa fallback automático si Groq falla.
-
-Toda la información se maneja localmente.
+🧩 Proyecto desarrollado como parte del Módulo de Visión del bot EVA.
 
 👩‍💻 Autora
-
-Gabriela Galarza — Estudiante de Ciencias de Datos
-Apasionada por la tecnología, IA y desarrollo con impacto social.
+Gabriela Galarza
+Desarrolladora · Ciencia de Datos · IA para impacto social
 
