@@ -1,4 +1,5 @@
 import telebot as tlb
+import os
 #----------------------VOICE ANALYZER-------------------------------
 class VoiceAnalyzer:
         def __init__(self, bot, groq_client, sentiment_analyzer):
@@ -6,7 +7,7 @@ class VoiceAnalyzer:
             self.groq_client = groq_client
             self.sentiment = sentiment_analyzer
 
-        def register_handlers(self):
+        def register_handlers(self, callback_main):
 
             @self.bot.message_handler(content_types=['voice'])
             def handle_voice_message(message: tlb.types.Message):
@@ -26,16 +27,11 @@ class VoiceAnalyzer:
                     return
                 
                 #NO HAY RIESGO:
-                response = self._groq_response(text)
-
-                if response:
-                    self.bot.reply_to(message, response)
-                else:    
-                    self.bot.reply_to(message, "Tuve un problema procesando tu audio, ¿puedes intentarlo otra vez? ✨")
+                callback_main(message, text)
         
-        def transcribe_voice(self, texto):
+        def transcribe_voice(self, message):
             try:
-                file_info = self.bot.get_file(texto.voice.file_id)
+                file_info = self.bot.get_file(message.voice.file_id)
                 download_file = self.bot.download_file(file_info.file_path)
                 
                 #archivo temporal:
@@ -45,19 +41,19 @@ class VoiceAnalyzer:
 
                 with open(temp_file, "rb") as file:
                     transcription = self.groq_client.audio.transcriptions.create(
-                    file=(temp_file, file.read()),
-                    model="whisper-large-v3-turbo",
-                    prompt="Especificar contexto o pronunciacion",
-                    response_format="json",
-                    language="es",
-                    temperature=1
-                )
+                        file=("audio.ogg", file.read()),
+                        model="whisper-large-v3-turbo",
+                        prompt="Especificar contexto o pronunciacion",
+                        response_format="json",
+                        language="es",
+                        temperature=1
+                    )
 
                 # eliminar archivo temporal
                 os.remove(temp_file)
 
-        # devolver texto
-                return transcription.text
+                # devolver texto
+                return transcription.text.strip()
 
             except Exception as e:
                     print(f"Error al transcribir: {str(e)}")
