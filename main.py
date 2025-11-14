@@ -85,17 +85,40 @@ class HelpDirectory:
     Podés ajustar contactos o agregar más países/categorías.
     """
     def __init__(self):
-        self.data = {
+                self.data = {
             "AR": {
                 "general": [
-                    HelpResource("Línea 144", "144", "Atención a personas en situación de violencia por motivos de género."),
-                    HelpResource("Emergencias", "911", "Si hay riesgo inmediato."),
+                    HelpResource(
+                        "Línea 144",
+                        "144",
+                        "Atención y orientación gratuita, 24/7, para personas en situación de violencia por motivos de género."
+                    ),
+                    HelpResource(
+                        "Emergencias",
+                        "911",
+                        "Si hay riesgo inmediato para tu integridad o la de otra persona."
+                    ),
+                    HelpResource(
+                        "Línea 137",
+                        "137",
+                        "Programa de acompañamiento ante situaciones de violencia familiar en algunos territorios."
+                    ),
                 ],
                 "verbal": [
-                    HelpResource("Línea 144", "144", "Podés pedir orientación sobre violencia psicológica o verbal.")
+                    HelpResource(
+                        "Línea 144",
+                        "144",
+                        "Podés pedir orientación sobre violencia psicológica, verbal o emocional."
+                    ),
+                    HelpResource(
+                        "Atención local",
+                        "Centros de la mujer, hospitales y áreas de género de tu municipio",
+                        "Podés consultar en tu municipio por dispositivos presenciales de acompañamiento."
+                    ),
                 ],
             }
         }
+
 
     def get(self, country: str, category: str) -> List[HelpResource]:
         country = (country or "AR").upper()
@@ -224,9 +247,16 @@ class GroqVisionClient:
         recs = []
         if sev in ("media", "alta"):
             recs = [
-                "No respondas a las agresiones; guardá evidencia (capturas).",
-                "Bloqueá/silenciá a la persona agresora en la plataforma.",
-                "Contale a alguien de confianza y buscá apoyo."
+                "No respondas a las agresiones; guardá evidencia (capturas o mensajes).",
+                "Bloqueá o silenciá a la persona agresora en la plataforma, si te resulta seguro.",
+                "Contale a alguien de confianza lo que está pasando (amiga/o, familiar, persona adulta de referencia).",
+                "Si podés, buscá acompañamiento profesional o en una organización especializada en violencias."
+            ]
+        elif sev == "baja":
+            recs = [
+                "Presta atención a cómo te sentís al leer estos mensajes; si algo te duele o incomoda, es importante.",
+                "Podés hablar con alguien de confianza sobre lo que está pasando para no cargar con esto sola/o.",
+                "Si la situación se repite, considerá poner límites claros o tomar distancia digitalmente (silenciar, archivar, etc.)."
             ]
 
         return {
@@ -321,7 +351,17 @@ def _compose_empathetic_message(
         )
 
     ev_text = "- " + ("\n- ".join(evidencias) if evidencias else "(sin evidencias listadas)")
-    rec_text = "- " + ("\n- ".join(recomendaciones) if recomendaciones else "(sin recomendaciones específicas)")
+
+    # Si no hay recomendaciones específicas, agregamos un set base para no dejar sola/o a la persona
+    if not recomendaciones:
+        recomendaciones = [
+            "Hablar con alguien de confianza sobre lo que está pasando.",
+            "Guardar capturas o registros por si más adelante necesitás mostrar lo que viviste.",
+            "Recordar que lo que otras personas dicen de vos no define tu valor.",
+            "Si la situación te afecta mucho, considerar pedir ayuda profesional o en una línea de atención especializada."
+        ]
+
+    rec_text = "- " + "\n- ".join(recomendaciones)
 
     nota_texto = f"_Nota: {llm_note}_\n\n" if llm_note else ""
 
