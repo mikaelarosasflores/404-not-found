@@ -18,9 +18,9 @@ class SentimentAnalyzer:
         self.seeds: Dict[str, str] = {
             "violencia_fisica":       "me empujó, me golpeó, me lastimó, violencia física, moretones",
             "violencia_psicologica":  "me insulta, me humilla, me grita, me hace sentir mal, te odio",
-            "control_aislamiento":    "no me deja salir, controla con quién hablo, me aísla",
+            "control_aislamiento":    "no me deja salir, controla con quién hablo, me aíslam me prohíbe que hable con amigas",
             "amenazas_acoso":         (
-                "te voy a hacer daño, te voy a matar, me va a matar, va a matarme, "
+                "te voy a hacer daño, te voy a matar, me va a matar, va a matarme, va a "
                 "me dijo que me va a matar, amenaza, me amenaza, hostigar, acosar, perseguir, sicario, sicarios"
             ),
             "violencia_digital":      "revisa mi celular, contraseñas, espía mis mensajes, controla redes",
