@@ -1,4 +1,4 @@
-.env
+!.env.example
 entorno-eva/
 __pycache__/
 *.pyc
