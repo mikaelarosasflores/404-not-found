@@ -26,11 +26,11 @@
 Ofrecer detección temprana de patrones de violencia y apoyo emocional inmediato a través de un bot de Telegram accesible 24/7.
 
 ### Capacidades
-- ✅ **8 categorías de violencia** detectables
-- ✅ **13 emociones** identificables con intensidad
+- ✅ **7 categorías de violencia** detectables mediante embeddings
+- ✅ **Análisis de sentimiento** con RoBERTuito
 - ✅ **3 modalidades de entrada:** texto, voz, imagen
-- ✅ **280+ patrones específicos** en español
-- ✅ **Análisis con IA** + sistema de reglas híbrido
+- ✅ **Embeddings semánticos** para categorización precisa
+- ✅ **Análisis con IA** + similitud coseno
 - ✅ **Respuestas empáticas** automáticas
 - ✅ **Líneas de ayuda** integradas
 
@@ -55,65 +55,63 @@ Sistema de **análisis emocional y detección de violencia** en mensajes de text
 
 ## 🔧 Funcionalidades Principales
 
-### 1. Análisis de Emociones con IA
-- **13 emociones detectables:**
-  - Tristeza 😢
-  - Enojo 🔥
-  - Miedo 😨
-  - Agobio 😰
-  - Confusión 😕
-  - Impotencia 😔
-  - Felicidad 😊
-  - Soledad 🤔
-  - Culpa 💭
-  - Vergüenza 😳
-  - Ansiedad 😰
-  - Frustración 💢
-  - Esperanza 🌟
+### 1. Análisis de Sentimiento con IA
+- **RoBERTuito:** Clasificación POS/NEG/NEU
+- **Confianza:** Score de 0.0 a 1.0
+- **Optimizado** para español latinoamericano
 
 ### 2. Detección de Violencia
-- **8 categorías identificables:**
-  1. 🔴 **Violencia Física** - golpes, pegar, moretones
-  2. 😔 **Violencia Psicológica** - insultos, humillar, gaslighting
-  3. 🚫 **Control y Aislamiento** - celos, revisar celular, prohibir
-  4. ⚠️ **Amenazas y Acoso** - amenazar, perseguir, hostigar
-  5. 🔞 **Violencia Sexual** - forzar, obligar, presionar
-  6. 📱 **Violencia Digital** - hackear, contraseñas, stalkear
-  7. 💔 **Manipulación Emocional** - chantaje, culpa
-  8. 💰 **Violencia Económica** - controlar dinero
+- **7 categorías identificables:**
+  1. 🔴 **Violencia Física** - golpes, empujar, lastimar, moretones
+  2. 😔 **Violencia Psicológica** - insultos, humillar, gritar, te odio
+  3. 🚫 **Control y Aislamiento** - no me deja salir, controla con quién hablo
+  4. ⚠️ **Amenazas y Acoso** - te voy a matar, hostigar, sicario
+  5. 📱 **Violencia Digital** - revisa celular, contraseñas, espía mensajes
+  6. 💔 **Manipulación Emocional** - me hace sentir culpable, chantaje
+  7. 💰 **Violencia Económica** - controla dinero, no me deja trabajar
 
 ### 3. Sistema Híbrido IA + Reglas
-- **Transformers para emociones:**
-  - RoBERTuito: Análisis de sentimiento general
-  - BETO: Detección de emociones específicas
-- **280+ patrones de reglas** para violencia
-- **Scoring inteligente** de riesgo
+- **Transformers para sentimiento:**
+  - RoBERTuito: Análisis de sentimiento general (POS/NEG/NEU)
+- **Embeddings semánticos para categorización:**
+  - SentenceTransformer: Similitud coseno con seeds de violencia
+  - 7 categorías con vectores pre-calculados
+- **Regex para amenazas específicas:**
+  - Patrones de muerte: "me va a matar", "te voy a matar"
+  - Detección de palabras clave por severidad
+- **Scoring inteligente** de riesgo basado en similitudes
 
 ## 🤖 Modelos de IA Utilizados
 
 ```python
 # Modelo de sentimientos
 pysentimiento/robertuito-sentiment-analysis
-- Sentimiento: Positivo/Negativo/Neutral
+- Sentimiento: POS/NEG/NEU
 - Confianza: 0.0 - 1.0
+- Análisis general del tono
 
-# Modelo de emociones
-finiteautomata/beto-emotion-analysis
-- Emociones específicas con scoring
-- Top 3 emociones detectadas
+# Modelo de embeddings semánticos
+distiluse-base-multilingual-cased-v2
+- Crea vectores de 512 dimensiones
+- Multilingüe (optimizado para español)
+- Similitud coseno entre textos
+- Usado para categorización de violencia
 ```
 
-## 📊 Análisis de Intensidad Emocional
+## 📊 Análisis de Similitud Semántica
 
 ```python
-Intensidad = f(
-    número_emociones,
-    palabras_intensificadoras,
-    signos_exclamación,
-    palabras_mayúsculas
-)
+# Proceso de categorización por embeddings:
 
-Escala: 0.0 (baja) → 1.0 (alta)
+1. Texto del usuario → Vector embedding (512 dim)
+2. Comparar con seeds de categorías (pre-calculados)
+3. Similitud coseno (0.0 - 1.0) para cada categoría
+4. Categoría con mayor score = categoria_top
+
+Umbrales de similitud:
+- > 0.50: Violencia física/amenazas → Riesgo ALTO
+- > 0.40: Psicológica/control/manipulación → Riesgo MODERADO  
+- > 0.33: Cualquier categoría → Riesgo LEVE
 ```
 
 ## 🎚️ Niveles de Riesgo
@@ -131,44 +129,204 @@ Escala: 0.0 (baja) → 1.0 (alta)
 ```
 Mensaje de texto
     ↓
-1. Análisis con Transformers
-   ├─ RoBERTuito → Sentimiento
-   └─ BETO → Emociones específicas
+1. Validación de entrada
+   └─ ¿Texto válido? → No → Retorna resultado vacío
     ↓
-2. Análisis de patrones
-   └─ 280+ reglas de violencia
+2. Análisis de sentimiento (RoBERTuito)
+   └─ Label: POS/NEG/NEU + confianza
     ↓
-3. Cálculo de intensidad emocional
+3. Cálculo de embeddings semánticos
+   └─ Vector del texto usuario (512 dim)
     ↓
-4. Determinación de nivel de riesgo
+4. Similitud coseno con seeds
+   └─ Score para cada una de las 7 categorías
     ↓
-5. Generación de respuesta personalizada
-   ├─ Consejos según emociones
-   ├─ Recursos según riesgo
-   └─ Líneas de ayuda
+5. Detección de patrones críticos
+   ├─ Regex amenazas de muerte
+   ├─ Palabras de emergencia
+   └─ Palabras clave por severidad
+    ↓
+6. Determinación de nivel de riesgo
+   └─ Emergencia/Alto/Moderado/Leve/Ninguno
+    ↓
+7. Generación de tags adicionales
+   └─ Etiquetas específicas detectadas
+    ↓
+8. Retorno de resultado completo
+   ├─ Sentimiento (label + confianza)
+   ├─ Similitudes (7 categorías)
+   ├─ Categoría top + score
+   ├─ Nivel de riesgo
+   ├─ Tags
+   └─ Timestamp
 ```
 
 ## 💻 Estructura de Clases
 
 ```python
-class SecurityAnalyzer:
+class SentimentAnalyzer:
     def __init__(self):
-        - Inicializa modelos de Transformers
-        - Carga patrones de violencia (280+)
-        - Configura emociones (13 tipos)
-        - Establece niveles de severidad
+        """
+        Inicializa modelos y patrones:
+        - RoBERTuito: Análisis de sentimiento
+        - SentenceTransformer: Embeddings semánticos
+        - Patrones de violencia categorizados
+        - Niveles de severidad
+        """
+        # Modelo de sentimiento
+        self.senti = pipeline(
+            "sentiment-analysis",
+            model="pysentimiento/robertuito-sentiment-analysis"
+        )
+        
+        # Modelo de embeddings semánticos
+        self.emb = SentenceTransformer("distiluse-base-multilingual-cased-v2")
+        
+        # Seeds de categorías de violencia
+        self.seeds = {
+            "violencia_fisica": "me empujó, me golpeó, me lastimó, moretones",
+            "violencia_psicologica": "me insulta, me humilla, me grita, te odio",
+            "control_aislamiento": "no me deja salir, controla con quién hablo",
+            "amenazas_acoso": "te voy a matar, me amenaza, hostigar, sicario",
+            "violencia_digital": "revisa mi celular, contraseñas, espía mensajes",
+            "manipulacion_emocional": "me hace sentir culpable, chantaje",
+            "violencia_economica": "controla mi dinero, no me deja trabajar",
+        }
+        
+        # Vectores de embeddings pre-calculados
+        self.seed_vecs = {cat: self.emb.encode(txt) for cat, txt in self.seeds.items()}
+        
+        # Patrones de severidad
+        self.sev = {
+            "emergencia": ["suicid", "matarme ahora", "me está pegando"],
+            "alto": ["te voy a matar", "arma", "sangre", "sicario"],
+            "moderado": ["no me deja", "me sigue", "me espía"],
+            "leve": ["celos", "mensajes constantes"],
+        }
+        
+        # Regex para amenazas de muerte
+        self.re_kill_threat = re.compile(
+            r"\b(?:me|te|nos)\s+va(?:n)?\s+a\s+matar\b"
+            r"|(?:\bva(?:n)?\s+a\s+matar(?:me|te|nos)?\b)"
+            r"|(?:\b(?:matarme|matarte|matarnos)\b)"
+            r"|(?:\bte\s+voy\s+a\s+matar\b)",
+            re.IGNORECASE
+        )
     
-    def analyze_message(self, text):
-        - Análisis principal del mensaje
-        - Retorna: patrones, riesgo, respuesta, IA
+    def analyze(self, text):
+        """
+        Análisis principal del texto
+        1. Análisis de sentimiento (RoBERTuito)
+        2. Cálculo de similitudes semánticas
+        3. Determinación de nivel de riesgo
+        4. Generación de tags
+        
+        Retorna: dict con sentimiento, similitudes, categoría_top,
+                 nivel_riesgo, tags, timestamp
+        """
+        if not text or not text.strip():
+            return {
+                "sentimiento": None,
+                "similitudes": {},
+                "categoria_top": None,
+                "score_top": None,
+                "nivel_riesgo": "ninguno",
+                "tags": [],
+                "timestamp": datetime.now().isoformat(),
+            }
+        
+        tl = text.lower().strip()
+        
+        # 1. Análisis de sentimiento
+        s = self.senti(tl[:512])[0]
+        
+        # 2. Similitudes semánticas
+        sims = self._sims(tl)
+        
+        # 3. Categoría más similar
+        categoria_top = max(sims, key=sims.get) if sims else None
+        score_top = sims.get(categoria_top) if categoria_top else None
+        
+        # 4. Nivel de riesgo
+        nivel_riesgo = self._risk(tl, sims, s["label"])
+        
+        # 5. Tags adicionales
+        tags = self._tags(tl, sims)
+        
+        return {
+            "sentimiento": {"label": s["label"], "confianza": float(s["score"])},
+            "similitudes": sims,
+            "categoria_top": categoria_top,
+            "score_top": score_top,
+            "nivel_riesgo": nivel_riesgo,
+            "tags": tags,
+            "timestamp": datetime.now().isoformat(),
+        }
     
-    def analyze_emotions_spanish(self, text):
-        - Análisis emocional específico
-        - Retorna: emociones, intensidad, consejos
+    def _sims(self, text):
+        """
+        Calcula similitud coseno entre el texto y cada categoría
+        usando embeddings semánticos
+        """
+        v_user = self.emb.encode(text)
+        return {
+            cat: float(util.cos_sim(v_user, v_seed).item()) 
+            for cat, v_seed in self.seed_vecs.items()
+        }
     
-    def detect_violence_comprehensive(self, text):
-        - Detección completa de violencia
-        - Retorna: categorías, nivel, recomendaciones
+    def _risk(self, text, sims, senti_label):
+        """
+        Determina nivel de riesgo basado en:
+        - Palabras clave de emergencia
+        - Regex de amenazas de muerte
+        - Similitudes semánticas con categorías graves
+        - Sentimiento negativo
+        """
+        # Emergencia
+        if any(w in text for w in self.sev["emergencia"]):
+            return "emergencia"
+        
+        # Alto (amenazas de muerte)
+        if self.re_kill_threat.search(text):
+            return "alto"
+        
+        # Alto (violencia física/amenazas)
+        if any(w in text for w in self.sev["alto"]) or \
+           any(sims.get(c, 0.0) > 0.50 for c in ("violencia_fisica", "amenazas_acoso")):
+            return "alto"
+        
+        # Moderado
+        if senti_label == "NEG" and \
+           any(sims.get(c, 0.0) > 0.40 for c in ("violencia_psicologica", "control_aislamiento", "manipulacion_emocional")):
+            return "moderado"
+        
+        # Leve
+        if any(v > 0.33 for v in sims.values()) or \
+           any(w in text for w in (self.sev["moderado"] + self.sev["leve"])):
+            return "leve"
+        
+        return "ninguno"
+    
+    def _tags(self, text, sims):
+        """
+        Genera tags adicionales basados en patrones específicos
+        """
+        tags = []
+        
+        if "te odio" in text or "odio" in text:
+            tags += ["negativo", "posible_psicologica"]
+        
+        if self.re_kill_threat.search(text) or \
+           any(k in text for k in ["sicario", "te voy a", "matarte"]):
+            tags += ["posible_amenaza"]
+        
+        if any(k in text for k in ["no me deja", "revisa mi celular", "contraseñas"]):
+            tags += ["posible_control"]
+        
+        if sims:
+            tags.append(f"top_emb:{max(sims, key=sims.get)}")
+        
+        return tags
 ```
 
 ## 📦 Dependencias Principales
@@ -188,36 +346,45 @@ scipy==1.11.3
 ## ✅ Ejemplo de Uso
 
 ```python
-from analyzers.sentiment_analyzer import SecurityAnalyzer
+from analyzers.sentiment_analyzer import SentimentAnalyzer
 
 # Inicializar
-analyzer = SecurityAnalyzer()
+analyzer = SentimentAnalyzer()
 
 # Analizar mensaje
-texto = "Me siento muy triste y tengo miedo"
-resultado = analyzer.analyze_message(texto)
+texto = "Mi pareja me amenaza con matarme si lo dejo"
+resultado = analyzer.analyze(texto)
 
 # Resultado
 {
-    'emociones': ['tristeza', 'miedo'],
-    'intensidad': 0.85,
-    'nivel_riesgo': 'leve',
-    'categorias_violencia': [],
-    'respuesta': 'Consejos personalizados...',
-    'ai_analysis': {
-        'sentimiento': 'NEG',
-        'confianza': 0.92
-    }
+    'sentimiento': {
+        'label': 'NEG',
+        'confianza': 0.95
+    },
+    'similitudes': {
+        'violencia_fisica': 0.42,
+        'violencia_psicologica': 0.38,
+        'control_aislamiento': 0.45,
+        'amenazas_acoso': 0.78,  # ← Mayor score
+        'violencia_digital': 0.12,
+        'manipulacion_emocional': 0.41,
+        'violencia_economica': 0.08
+    },
+    'categoria_top': 'amenazas_acoso',
+    'score_top': 0.78,
+    'nivel_riesgo': 'alto',
+    'tags': ['posible_amenaza', 'top_emb:amenazas_acoso'],
+    'timestamp': '2025-11-14T21:45:00.123456'
 }
 ```
 
 ## 🎯 Características Únicas
 
-1. **Primera vez:** Sistema de análisis emocional con Transformers para violencia en español
-2. **Doble capa:** IA para emociones + Reglas expertas para violencia
-3. **Fallback robusto:** Funciona sin IA usando análisis basado en reglas
-4. **Culturalmente relevante:** 280+ patrones específicos para español/latinoamérica
-5. **Intensidad medida:** Scoring de 0.0 a 1.0 con IA
+1. **Embeddings semánticos:** Sistema de similitud coseno para categorización precisa
+2. **Doble capa:** IA para sentimiento + Embeddings para violencia
+3. **Regex específico:** Detección de amenazas de muerte con patrones avanzados
+4. **Culturalmente relevante:** Seeds específicos para español/latinoamérica
+5. **Scoring continuo:** Similitudes de 0.0 a 1.0 (no solo binario)
 
 ---
 
@@ -288,6 +455,9 @@ class VoiceAnalyzer:
         groq_client: cliente Groq para transcripción
         sentiment_analyzer: módulo de análisis (Frida)
         """
+        self.bot = bot
+        self.groq_client = groq_client
+        self.sentiment = sentiment_analyzer
     
     def register_handlers(self, callback_main):
         """
@@ -295,15 +465,47 @@ class VoiceAnalyzer:
         Transcribe y envía al analizador
         Llama callback con resultado
         """
+        @self.bot.message_handler(content_types=['voice'])
+        def handle_voice_message(message):
+            text = self.transcribe_voice(message)
+            if not text:
+                self.bot.reply_to(message, "Lo siento mucho, no pude escucharte bien, ¿Podrías repetirlo? 🌻")
+                return
+            # Manda el texto a sentiment analyzer
+            analysis = self.sentiment.analyze(text)
+            callback_main(message, text, analysis)
     
     def transcribe_voice(self, message):
         """
-        Descarga audio
-        Guarda archivo temporal
-        Envía a Groq → obtiene texto
-        Elimina temporal
+        Descarga audio → Guarda temporal → Transcribe con Groq → Elimina temporal
         Retorna: texto o None
         """
+        try:
+            file_info = self.bot.get_file(message.voice.file_id)
+            download_file = self.bot.download_file(file_info.file_path)
+            
+            # Archivo temporal
+            temp_file = "temp_voice.ogg"
+            with open(temp_file, "wb") as f:
+                f.write(download_file)
+            
+            with open(temp_file, "rb") as file:
+                transcription = self.groq_client.audio.transcriptions.create(
+                    file=("audio.ogg", file.read()),
+                    model="whisper-large-v3-turbo",
+                    prompt="Especificar contexto o pronunciacion",
+                    response_format="json",
+                    language="es",
+                    temperature=1
+                )
+            
+            # Eliminar archivo temporal
+            os.remove(temp_file)
+            return transcription.text.strip()
+            
+        except Exception as e:
+            print(f"Error al transcribir: {str(e)}")
+            return None
 ```
 
 ## 🤖 API Utilizada
@@ -496,79 +698,152 @@ Usuario envía captura de pantalla 📸
 ## 💻 Estructura Principal
 
 ```python
-class VisionAnalyzer:
-    def __init__(self, bot, groq_client):
+class ImageAnalyzer:
+    def __init__(self, bot, groq_client, model="meta-llama/llama-4-scout-17b-16e-instruct"):
         """
         bot: instancia de TeleBot
         groq_client: cliente Groq Vision
+        model: modelo de visión (Llama 4 Scout por defecto)
         """
+        self.bot = bot
+        self.groq = groq_client
+        self.model = model
     
-    def analyze_image(self, image_file):
+    def register_handlers(self, callback_main):
+        """
+        Registra handlers para fotos y documentos de imagen
+        """
+        @self.bot.message_handler(content_types=["photo"])
+        def handle_photo(message):
+            payload = self._analyze_message_image(message, self._download_photo_bytes(message))
+            callback_main(message, payload)
+        
+        @self.bot.message_handler(content_types=["document"])
+        def handle_document(message):
+            doc = message.document
+            if not doc or not (doc.mime_type or "").startswith("image/"):
+                return
+            payload = self._analyze_message_image(message, self._download_doc_bytes(message))
+            callback_main(message, payload)
+    
+    def _analyze_message_image(self, message, img_bytes):
         """
         Análisis principal de imagen
         1. Valida imagen
-        2. Intenta con Groq Vision
-        3. Fallback a OCR local
-        Retorna: resultado completo
+        2. Convierte a JPEG base64
+        3. Llama a Groq Vision
+        4. Extrae OCR y objetos
+        Retorna: resultado completo con estado, OCR y objetos
         """
+        meta = {
+            "user_id": getattr(message.from_user, "id", None),
+            "chat_id": getattr(message.chat, "id", None),
+            "message_id": getattr(message, "message_id", None),
+        }
+        if not img_bytes:
+            return {"status": "error", "reason": "download_failed", "meta": meta}
+        
+        b64 = self._to_jpeg_b64(img_bytes)
+        if not b64:
+            return {"status": "error", "reason": "encode_failed", "meta": meta}
+        
+        out = self._call_vision(b64)
+        if "error" in out:
+            return {"status": "error", "reason": "vision_error", "error": out["error"], "meta": meta}
+        
+        ocr = (out.get("ocr_text") or "").strip()
+        return {
+            "status": "ok",
+            "meta": meta,
+            "ocr_text": ocr,
+            "objects": out.get("objects", []) or [],
+        }
     
-    def groq_vision_analyze(self, image):
+    def _call_vision(self, b64_jpeg):
         """
         Análisis con Groq Vision API
-        Retorna: texto, violencia, severidad, evidencias
+        Extrae texto OCR y detecta objetos
+        Retorna: JSON con ocr_text y objects
         """
+        try:
+            prompt = (
+                "Extrae texto en ESPAÑOL de una captura de pantalla (chat/WhatsApp). "
+                "Devuelve SOLO JSON con claves:\n"
+                "ocr_text: string (todo el texto visible, líneas separadas por \\n),\n"
+                "objects: lista máx 5 de {label, prob}.\n"
+                "Si no hay texto, usa ocr_text=\"\"."
+            )
+            messages = [{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_jpeg}"}},
+                ],
+            }]
+            
+            try:
+                resp = self.groq.chat.completions.create(
+                    model=self.model,
+                    temperature=0.0,
+                    response_format={"type": "json_object"},
+                    messages=messages,
+                )
+                text = resp.choices[0].message.content
+            except Exception:
+                resp = self.groq.chat.completions.create(
+                    model=self.model,
+                    temperature=0.0,
+                    messages=messages,
+                )
+                text = resp.choices[0].message.content
+            
+            return json.loads(text)
+        except Exception as e:
+            return {"error": str(e)}
     
-    def ocr_local_analyze(self, image):
+    def _to_jpeg_b64(self, data, max_side=2000):
         """
-        Análisis con Tesseract OCR
-        1. Preprocesa imagen (OpenCV)
-        2. Extrae texto (Tesseract)
-        3. Analiza con reglas
-        Retorna: resultado
+        Preprocesamiento con PIL
+        - Convierte a RGB
+        - Redimensiona si es necesario
+        - Comprime a JPEG
+        - Codifica en base64
         """
-    
-    def preprocess_image(self, image):
-        """
-        Preprocesamiento con OpenCV
-        - Escala de grises
-        - Reducción de ruido
-        - Contraste
-        - Binarización
-        """
-    
-    def detect_violence_in_text(self, text):
-        """
-        Detección basada en reglas
-        Patrones de insultos/amenazas
-        """
+        try:
+            img = Image.open(io.BytesIO(data)).convert("RGB")
+            w, h = img.size
+            s = max(w, h) / max_side
+            if s > 1:
+                img = img.resize((int(w / s), int(h / s)), Image.LANCZOS)
+            out = io.BytesIO()
+            img.save(out, format="JPEG", quality=92)
+            return base64.b64encode(out.getvalue()).decode("utf-8")
+        except Exception:
+            return None
 ```
 
 ## 🤖 APIs y Tecnologías
 
 ### Groq Vision API
 ```python
-Modelo: llava-v1.5-7b-4096-preview
-Prompt: "Analiza esta captura de conversación.
-         Detecta insultos, amenazas o agresiones.
-         Clasifica severidad: leve, media, alta.
-         Lista evidencias específicas."
+Modelo: meta-llama/llama-4-scout-17b-16e-instruct
+Prompt: "Extrae texto en ESPAÑOL de una captura de pantalla.
+         Devuelve SOLO JSON con:
+         - ocr_text: todo el texto visible
+         - objects: lista de objetos detectados {label, prob}"
+         
+Response: JSON con ocr_text y objects
+Temperature: 0.0 (determinístico)
 ```
 
-### Tesseract OCR
+### PIL (Pillow)
 ```python
-Configuración:
-- Lenguaje: español (spa)
-- Modo: PSM 6 (bloque uniforme)
-- OEM: 3 (LSTM + legacy)
-```
-
-### OpenCV
-```python
-Preprocesamiento:
-1. cv2.cvtColor() → Escala de grises
-2. cv2.GaussianBlur() → Reducción de ruido
-3. cv2.threshold() → Binarización adaptativa
-4. cv2.morphologyEx() → Limpieza morfológica
+Preprocesamiento de imagen:
+1. Image.open() → Abrir imagen
+2. .convert("RGB") → Convertir a RGB
+3. .resize() → Redimensionar si excede 2000px
+4. .save(format="JPEG") → Comprimir a JPEG 92%
+5. base64.b64encode() → Codificar para API
 ```
 
 ## 📦 Dependencias
@@ -577,13 +852,16 @@ Preprocesamiento:
 # API Groq
 groq==0.9.0
 
-# Visión y OCR
-opencv-python==4.8.1.78
-pytesseract==0.3.10
+# Visión y procesamiento de imágenes
 Pillow==10.1.0
 
 # Bot
 pyTelegramBotAPI==4.15.2
+
+# Utilidades
+io (manejo de bytes)
+json (parsing de respuestas)
+base64 (codificación)
 ```
 
 ## ✅ Ejemplos de Salida
@@ -1298,15 +1576,13 @@ una denuncia o bloquear contacto?
 | **pyTelegramBotAPI** | Todos | 4.15.2 | Bot de Telegram |
 | **python-dotenv** | Todos | 1.0.0 | Variables de entorno |
 | **Transformers** | Sentimiento | 4.35.0 | Modelos de IA |
+| **Sentence-Transformers** | Sentimiento | 2.2.2 | Embeddings semánticos |
 | **PyTorch** | Sentimiento | 2.1.0 | Framework ML |
-| **TensorFlow** | Sentimiento | 2.15.0 | Framework ML |
 | **RoBERTuito** | Sentimiento | - | Análisis sentimientos |
-| **BETO** | Sentimiento | - | Análisis emociones |
+| **DistilUSE** | Sentimiento | - | Embeddings multilingües |
 | **Groq API** | Voz + Imagen | 0.9.0 | API de IA |
 | **Whisper** | Voz | large-v3 | Transcripción audio |
-| **Groq Vision** | Imagen | - | Análisis de imagen |
-| **Tesseract OCR** | Imagen | 0.3.10 | OCR local |
-| **OpenCV** | Imagen | 4.8.1 | Preprocesamiento |
+| **Llama 4 Scout** | Imagen | 17B | Análisis de imagen + OCR |
 | **Pillow** | Imagen | 10.1.0 | Manejo de imágenes |
 | **NumPy** | Todos | 1.24.3 | Operaciones numéricas |
 | **SciPy** | Sentimiento | 1.11.3 | Cálculos científicos |
@@ -1323,14 +1599,14 @@ Salida: POS/NEG/NEU + confianza (0-1)
 Precisión: ~85-90% en español
 ```
 
-### BETO (Emociones)
+### DistilUSE (Embeddings Semánticos)
 ```
-Modelo: finiteautomata/beto-emotion-analysis
-Base: BERT en español (BETO)
-Entrenamiento: Textos emocionales en español
-Emociones: joy, sadness, anger, fear, etc.
-Salida: Top-K emociones + scores
-Precisión: ~80-85% en español
+Modelo: distiluse-base-multilingual-cased-v2
+Base: Universal Sentence Encoder destilado
+Dimensionalidad: 512 dimensiones
+Idiomas: 15+ incluyendo español
+Uso: Similitud coseno entre textos
+Velocidad: ~100 textos/segundo
 ```
 
 ### Whisper (Voz)
@@ -1343,13 +1619,14 @@ Precisión: ~90% en español claro
 Formato entrada: .ogg, .mp3, .wav
 ```
 
-### Groq Vision (Imagen)
+### Llama 4 Scout (Imagen + OCR)
 ```
-Modelo: llava-v1.5-7b-4096-preview
-Base: LLaVA (Visual instruction tuning)
-Capacidad: Análisis de texto en imágenes
-Contexto: 4096 tokens
-Salida: Descripción + análisis + clasificación
+Modelo: meta-llama/llama-4-scout-17b-16e-instruct
+Base: Llama 4 con capacidades de visión
+Parámetros: 17B
+Contexto: 16K tokens (16e = extended)
+Capacidad: OCR + análisis de objetos
+Salida: JSON estructurado
 ```
 
 ---
@@ -1421,17 +1698,19 @@ CPU:
 - Análisis complementario entre modalidades
 
 ### 2. **IA de Última Generación**
-- Transformers especializados en español (RoBERTuito + BETO)
+- RoBERTuito especializado en sentimientos para español
+- SentenceTransformer multilingüe para embeddings
 - Whisper para transcripción de alta precisión
-- Groq Vision para análisis de imágenes
+- Llama 4 Scout para análisis de imágenes + OCR
 
 ### 3. **Robusto y Confiable**
-- Sistema de fallback en cada módulo
-- Funciona sin IA si es necesario
-- Manejo completo de errores
+- Sistema de embeddings semánticos eficiente
+- Similitud coseno para categorización precisa
+- Manejo completo de errores en todos los módulos
 
 ### 4. **Culturalmente Relevante**
-- 280+ patrones específicos para español latinoamericano
+- Seeds de embeddings específicos para español latinoamericano
+- Regex para patrones de amenazas en español
 - Líneas de ayuda de México incluidas
 - Lenguaje empático y apropiado
 
@@ -1445,19 +1724,22 @@ CPU:
 ### Por Módulo:
 
 **Sentimiento (Frida):**
-- ✨ Primer sistema híbrido IA + reglas para violencia en español
-- ✨ Análisis de intensidad emocional con scoring
-- ✨ 280+ patrones culturalmente específicos
+- ✨ Sistema de embeddings semánticos para categorización de violencia
+- ✨ Similitud coseno con seeds pre-calculados (7 categorías)
+- ✨ Regex avanzado para amenazas de muerte
+- ✨ Scoring continuo de 0.0 a 1.0 por categoría
 
 **Voz (Mikaela Rosas):**
 - ✨ Integración perfecta Whisper → Sentiment
-- ✨ Procesamiento temporal eficiente
+- ✨ Procesamiento temporal eficiente (auto-eliminación)
 - ✨ Callback system modular
+- ✨ Manejo robusto de errores con mensajes empáticos
 
 **Imagen (Gabriela Galarza):**
-- ✨ Doble sistema: IA + OCR garantiza funcionamiento
-- ✨ Preprocesamiento avanzado con OpenCV
-- ✨ Clasificación de severidad en 3 niveles
+- ✨ Llama 4 Scout para OCR + detección de objetos
+- ✨ Preprocesamiento con PIL (resize + compresión)
+- ✨ Respuesta JSON estructurada
+- ✨ Soporte para fotos y documentos de imagen
 
 ## 📈 Impacto Social Esperado
 
@@ -1587,9 +1869,10 @@ Si estás pasando por una situación de violencia:
 
 ---
 
-**Desarrollado con 💙 por Frida Janampa, Mikaela Rosas y Gabriela Galarza**
+**Desarrollado con 💙 por Mikaela Rosas, Frida Janampa y Gabriela Galarza**
 
 **EVA Bot** - *Evaluador de Violencia Automático*  
 *Tecnología con propósito social* 🌸
+
 
 
